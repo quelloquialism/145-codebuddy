@@ -15,8 +15,11 @@ import java.util.Date;
  */
 public class ClientGUI extends javax.swing.JFrame {
 
+    private String user = null;
+    
     /** Creates new form ClientsGUI */
-    public ClientGUI() {
+    public ClientGUI(String user) {
+        this.user = user;
         initComponents();
     }
 
@@ -33,6 +36,7 @@ public class ClientGUI extends javax.swing.JFrame {
         chatViewer = new javax.swing.JScrollPane();
         chatOutput = new javax.swing.JTextArea();
         sendButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
@@ -64,6 +68,9 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel1.setText("CoderBuddy");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -72,12 +79,19 @@ public class ClientGUI extends javax.swing.JFrame {
                 .addComponent(chatInput, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sendButton))
-            .addComponent(chatViewer, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(chatViewer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(294, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(chatViewer, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chatViewer, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chatInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -117,10 +131,6 @@ public class ClientGUI extends javax.swing.JFrame {
             String currentTime = DateFormat.getTimeInstance(DateFormat.MEDIUM)
                     .format(new Date());
 
-            // The notion of a user doesn't exist yet, so this is just a
-            // placeholder in the meantime
-            String user = "testuser";
-
             chatText += "(" + currentTime + ") " + user + "> " + inputText;
             chatOutput.setText(chatText);
             chatInput.setText("");
@@ -133,21 +143,11 @@ public class ClientGUI extends javax.swing.JFrame {
         return input.length() > 0 && input.length() < 256;
     }
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ClientGUI().setVisible(true);
-            }
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField chatInput;
     private javax.swing.JTextArea chatOutput;
     private javax.swing.JScrollPane chatViewer;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JButton sendButton;
     // End of variables declaration//GEN-END:variables
 
