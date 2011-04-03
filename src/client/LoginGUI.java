@@ -1,9 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * LoginGUI.java
  *
  * Created on Apr 3, 2011, 2:48:07 AM
