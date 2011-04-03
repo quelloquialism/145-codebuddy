@@ -1,9 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * ClientGUI.java
  *
  * Created on Apr 2, 2011, 7:49:52 PM
@@ -58,6 +53,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
         chatOutput.setColumns(20);
         chatOutput.setEditable(false);
+        chatOutput.setLineWrap(true);
         chatOutput.setRows(5);
         chatViewer.setViewportView(chatOutput);
 
