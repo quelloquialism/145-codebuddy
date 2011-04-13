@@ -21,6 +21,7 @@ public class ClientGUI extends javax.swing.JFrame {
     public ClientGUI(String user) {
         this.user = user;
         initComponents();
+        this.setLayout(new java.awt.BorderLayout());
     }
 
     /** This method is called from within the constructor to
@@ -32,12 +33,12 @@ public class ClientGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jSplitPane2 = new javax.swing.JSplitPane();
-        jSplitPane1 = new javax.swing.JSplitPane();
+        lbCaption = new javax.swing.JLabel();
+        spMiddle = new javax.swing.JSplitPane();
+        spMsgAndChat = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         messageFrame = new javax.swing.JTextArea();
-        jLayeredPane1 = new javax.swing.JLayeredPane();
+        lpChatArea = new javax.swing.JLayeredPane();
         chatViewer = new javax.swing.JScrollPane();
         chatOutput = new javax.swing.JTextArea();
         chatInput = new javax.swing.JTextField();
@@ -50,17 +51,32 @@ public class ClientGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
+        addWindowStateListener(new java.awt.event.WindowStateListener() {
+            public void windowStateChanged(java.awt.event.WindowEvent evt) {
+                formWindowStateChanged(evt);
+            }
+        });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18));
-        jLabel1.setText("CoderBuddy");
+        lbCaption.setFont(new java.awt.Font("Tahoma", 0, 18));
+        lbCaption.setText("CoderBuddy");
 
-        jSplitPane2.setDividerLocation(200);
-        jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jSplitPane2.setPreferredSize(new java.awt.Dimension(855, 474));
+        spMiddle.setDividerLocation(200);
+        spMiddle.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        spMiddle.setPreferredSize(new java.awt.Dimension(855, 474));
+        spMiddle.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                spMiddlePropertyChange(evt);
+            }
+        });
 
-        jSplitPane1.setDividerLocation(400);
-        jSplitPane1.setLastDividerLocation(400);
-        jSplitPane1.setPreferredSize(new java.awt.Dimension(855, 365));
+        spMsgAndChat.setDividerLocation(400);
+        spMsgAndChat.setLastDividerLocation(400);
+        spMsgAndChat.setPreferredSize(new java.awt.Dimension(855, 365));
+        spMsgAndChat.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                spMsgAndChatPropertyChange(evt);
+            }
+        });
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(400, 113));
 
@@ -70,7 +86,7 @@ public class ClientGUI extends javax.swing.JFrame {
         messageFrame.setPreferredSize(new java.awt.Dimension(400, 94));
         jScrollPane1.setViewportView(messageFrame);
 
-        jSplitPane1.setLeftComponent(jScrollPane1);
+        spMsgAndChat.setLeftComponent(jScrollPane1);
 
         chatViewer.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         chatViewer.setHorizontalScrollBar(null);
@@ -82,7 +98,7 @@ public class ClientGUI extends javax.swing.JFrame {
         chatViewer.setViewportView(chatOutput);
 
         chatViewer.setBounds(0, 0, 450, 170);
-        jLayeredPane1.add(chatViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        lpChatArea.add(chatViewer, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         chatInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -95,7 +111,7 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
         chatInput.setBounds(10, 180, 360, 20);
-        jLayeredPane1.add(chatInput, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        lpChatArea.add(chatInput, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         sendButton.setLabel("Send");
         sendButton.addActionListener(new java.awt.event.ActionListener() {
@@ -104,11 +120,11 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
         sendButton.setBounds(380, 180, 70, 23);
-        jLayeredPane1.add(sendButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        lpChatArea.add(sendButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
-        jSplitPane1.setRightComponent(jLayeredPane1);
+        spMsgAndChat.setRightComponent(lpChatArea);
 
-        jSplitPane2.setRightComponent(jSplitPane1);
+        spMiddle.setRightComponent(spMsgAndChat);
 
         jSplitPane3.setDividerLocation(200);
 
@@ -124,28 +140,25 @@ public class ClientGUI extends javax.swing.JFrame {
 
         jSplitPane3.setRightComponent(jScrollPane3);
 
-        jSplitPane2.setLeftComponent(jSplitPane3);
+        spMiddle.setLeftComponent(jSplitPane3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1))
-                    .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 865, Short.MAX_VALUE))
-                .addContainerGap())
+                .addContainerGap()
+                .addComponent(lbCaption)
+                .addContainerGap(769, Short.MAX_VALUE))
+            .addComponent(spMiddle, javax.swing.GroupLayout.DEFAULT_SIZE, 875, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
-                .addComponent(jSplitPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lbCaption)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(spMiddle, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -164,6 +177,66 @@ public class ClientGUI extends javax.swing.JFrame {
     private void chatInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chatInputActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_chatInputActionPerformed
+
+    private void spMsgAndChatPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_spMsgAndChatPropertyChange
+        String propertyName = evt.getPropertyName();
+
+        if (propertyName.equals(
+                javax.swing.JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY))
+        {  
+          ResizeChatArea();
+          
+        }
+    }//GEN-LAST:event_spMsgAndChatPropertyChange
+
+    private void spMiddlePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_spMiddlePropertyChange
+        String propertyName = evt.getPropertyName();
+
+        if (propertyName.equals(
+                javax.swing.JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY))
+        {
+            ResizeChatArea();
+        }
+    }//GEN-LAST:event_spMiddlePropertyChange
+
+    private void formWindowStateChanged(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowStateChanged
+        if (this.getState() == 0)
+        {
+            validate();
+        }
+    }//GEN-LAST:event_formWindowStateChanged
+
+    @Override
+    public void validate()
+    {
+        super.validate();
+
+        int height = this.getHeight() - lbCaption.getHeight() - 59;
+        int width = this.getWidth() - 15;
+
+        spMiddle.setSize(width, height);
+        spMiddle.setLocation(spMiddle.getX(), 45);
+
+        ResizeChatArea();
+    }
+
+    private void ResizeChatArea()
+    {
+        int chatAreaHeight = spMiddle.getHeight() -
+            spMiddle.getDividerLocation() - spMiddle.getDividerSize() - 4;
+        int chatAreaWidth = spMiddle.getWidth() -
+            spMsgAndChat.getDividerLocation() -
+            spMsgAndChat.getDividerSize() - 4;
+        lpChatArea.setSize(chatAreaWidth, chatAreaHeight);
+        
+        int width = lpChatArea.getWidth();
+        int height = lpChatArea.getHeight();
+
+        chatViewer.setSize(width - 2, height - 30);
+        chatInput.setSize(width - 92, chatInput.getHeight());
+        chatInput.setLocation(chatInput.getX(), height - 24);
+        sendButton.setLocation(width - sendButton.getWidth() - 2, height - 24);
+    }
 
     private void handleChatSubmission() {
         // TODO update this to do db writes
@@ -198,17 +271,17 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea chatOutput;
     private javax.swing.JScrollPane chatViewer;
     private javax.swing.JTextArea codeFrame;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JLabel lbCaption;
+    private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
     private javax.swing.JButton sendButton;
     private javax.swing.JTree sourceTree;
+    private javax.swing.JSplitPane spMiddle;
+    private javax.swing.JSplitPane spMsgAndChat;
     // End of variables declaration//GEN-END:variables
 
 }
