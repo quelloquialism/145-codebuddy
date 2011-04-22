@@ -48,6 +48,10 @@ public class ClientGUI extends javax.swing.JFrame {
         sourceTree = new javax.swing.JTree();
         jScrollPane3 = new javax.swing.JScrollPane();
         codeFrame = new javax.swing.JTextArea();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        miNewProj = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
@@ -110,7 +114,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 chatInputKeyPressed(evt);
             }
         });
-        chatInput.setBounds(10, 180, 360, 20);
+        chatInput.setBounds(10, 180, 360, -1);
         lpChatArea.add(chatInput, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         sendButton.setLabel("Send");
@@ -119,7 +123,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 sendButtonActionPerformed(evt);
             }
         });
-        sendButton.setBounds(380, 180, 70, 23);
+        sendButton.setBounds(380, 180, 70, -1);
         lpChatArea.add(sendButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         spMsgAndChat.setRightComponent(lpChatArea);
@@ -142,22 +146,32 @@ public class ClientGUI extends javax.swing.JFrame {
 
         spMiddle.setLeftComponent(jSplitPane3);
 
+        jMenu1.setText("File");
+
+        miNewProj.setText("New Project...");
+        jMenu1.add(miNewProj);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lbCaption)
-                .addContainerGap(769, Short.MAX_VALUE))
             .addComponent(spMiddle, javax.swing.GroupLayout.DEFAULT_SIZE, 875, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(lbCaption)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(lbCaption)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(spMiddle, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -215,7 +229,7 @@ public class ClientGUI extends javax.swing.JFrame {
         int width = this.getWidth() - 15;
 
         spMiddle.setSize(width, height);
-        spMiddle.setLocation(spMiddle.getX(), 45);
+        spMiddle.setLocation(spMiddle.getX(), 23);
 
         ResizeChatArea();
     }
@@ -228,14 +242,13 @@ public class ClientGUI extends javax.swing.JFrame {
             spMsgAndChat.getDividerLocation() -
             spMsgAndChat.getDividerSize() - 4;
         lpChatArea.setSize(chatAreaWidth, chatAreaHeight);
-        
-        int width = lpChatArea.getWidth();
-        int height = lpChatArea.getHeight();
-
-        chatViewer.setSize(width - 2, height - 30);
-        chatInput.setSize(width - 92, chatInput.getHeight());
-        chatInput.setLocation(chatInput.getX(), height - 24);
-        sendButton.setLocation(width - sendButton.getWidth() - 2, height - 24);
+                
+        chatViewer.setSize(chatAreaWidth - 2, chatAreaHeight - 30);
+        chatInput.setSize(chatAreaWidth - 92, 20);
+        chatInput.setLocation(chatInput.getX(), chatAreaHeight - 24);
+        sendButton.setSize(70, 23);
+        sendButton.setLocation(chatAreaWidth - sendButton.getWidth() - 2,
+            chatAreaHeight - 24);
     }
 
     private void handleChatSubmission() {
@@ -271,6 +284,9 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea chatOutput;
     private javax.swing.JScrollPane chatViewer;
     private javax.swing.JTextArea codeFrame;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -278,6 +294,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JLabel lbCaption;
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
+    private javax.swing.JMenuItem miNewProj;
     private javax.swing.JButton sendButton;
     private javax.swing.JTree sourceTree;
     private javax.swing.JSplitPane spMiddle;
