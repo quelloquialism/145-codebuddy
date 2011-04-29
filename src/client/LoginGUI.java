@@ -6,6 +6,13 @@
 
 package client;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+
 import javax.swing.*;
 
 /**
@@ -139,11 +146,53 @@ public class LoginGUI extends JFrame {
         // TODO down the road, this will be backed by some db table on the
         // server--right now I'll just check that the username is valid.
         final String user = usernameInput.getText();
+        final String pass = passwordInput.getText();
+        boolean valid = false;
 
         if (user.length() >= 3 && user.length() <= 16 &&
                 user.matches("[A-Za-z0-9_.]+")) {
-
-            // TODO this is dirty--it means the login window disappears and
+            // TODO initiate server communication
+        	String srvrAddr = "minthe.ugcs.caltech.edu";
+        	Socket srvrSoc = null;
+        	PrintWriter srvrOut = null;
+        	BufferedReader srvrIn = null;
+        	
+        	try {
+        		InetAddress srvr = InetAddress.getByName(srvrAddr);
+        		srvrSoc = new Socket(srvr, 4444);
+        		srvrOut = new PrintWriter(srvrSoc.getOutputStream(), true);
+        		srvrIn = new BufferedReader(new InputStreamReader(
+        				srvrSoc.getInputStream()));
+        	} catch (Exception e) {
+        		JOptionPane.showMessageDialog(null,
+                        "Error: Could not establish connection with server.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+        		return;
+        	}
+        	
+        	srvrOut.println(user + ":" + pass);
+        	try {
+        		String srvrResponse = srvrIn.readLine();
+        		if (srvrResponse.equals("accept"))
+        			valid = true;
+        	} catch (Exception e) {
+        		JOptionPane.showMessageDialog(null,
+                        "Error: Communication with server interrupted.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+        		return;
+        	}
+        	
+        	try {
+        		srvrSoc.close();
+        	} catch (IOException e) {
+        		
+        	}
+        }
+        
+        if (valid) {
+        	// TODO this is dirty--it means the login window disappears and
             // the chat program starts, but in reality the login window is just
             // hiding, serving as the parent of the chat window.
             setVisible(false);
