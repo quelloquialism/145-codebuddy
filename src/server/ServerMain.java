@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 
 public class ServerMain {
 	public static void main(String[] args) throws IOException {
+		DBManager.init();
 		ServerSocket serverSocket = null;
 
 		try {
@@ -22,7 +23,6 @@ public class ServerMain {
 		}
 
 		serverSocket.close();
+		DBManager.shutdown();
 	}
-	
-	
 }

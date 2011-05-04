@@ -145,7 +145,7 @@ public class LoginGUI extends JFrame {
         boolean valid = false;
 
         if (user.length() >= 3 && user.length() <= 16 &&
-                user.matches("[A-Za-z0-9_.]+")) {
+                user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {
             // TODO initiate server communication
         	String srvrAddr = "minthe.ugcs.caltech.edu";
         	Socket srvrSoc = null;
