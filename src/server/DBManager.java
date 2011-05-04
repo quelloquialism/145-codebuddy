@@ -7,21 +7,25 @@ public class DBManager {
 	private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
 	private static final String dbName = "codebuddy";
 	private static final String connectionURL = "jdbc:derby:" + dbName + ";create=true";
-	private static final String createString = "CREATE TABLE USERS (" +
+	private static final String createUSERS = "CREATE TABLE USERS (" +
 			"USERNAME VARCHAR(20) NOT NULL, " +
 			"PASSHASH VARCHAR(32) NOT NULL, " +
+			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+	private static final String createCHAT = "CREATE TABLE CHAT (" +
+			"USERNAME VARCHAR(20) NOT NULL, " +
+			"MESSAGE VARCHAR(255) NOT NULL, " +
 			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 
 	private static Connection conn = null;
 	private static Statement s = null;
 
-	public static void init() {
+	static void init() {
 		// Load the JDBC JavaDB/Derby driver
 		try {
 			Class.forName(driver);
 			System.err.println(driver + " loaded. ");
 		} catch(ClassNotFoundException e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 
@@ -37,16 +41,26 @@ public class DBManager {
 			DatabaseMetaData dbmd = conn.getMetaData();
 			ResultSet rs = dbmd.getTables(null, null, "USERS", null);
 			if (!rs.next()) {
-				System.err.println("USERS table not found.	Creating...");
+				System.err.println("USERS table not found. Creating...");
 				createUsersTable();
+				System.err.println("USERS table created.");
 			}
+			
+			// Create chat table, if it does not exist.
+			rs = dbmd.getTables(null, null, "CHAT", null);
+			if (!rs.next()) {
+				System.err.println("CHAT table not found. Creating...");
+				createChatTable();
+				System.err.println("CHAT table created.");
+			}
+			
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	public static void shutdown() {
+	static void shutdown() {
 		try {
 			// Release the resources (clean up)
 			s.close();
@@ -63,17 +77,17 @@ public class DBManager {
 					properShutdown = true;
 			}
 			if (!properShutdown)
-				System.err.println("Database did not shut down normally");
+				System.err.println("Database failed to shutdown normally.");
 			else
-				System.err.println("Database shut down normally");
+				System.err.println("Database shutdown complete.");
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	public static void createUsersTable() throws SQLException {
-		s.execute(createString);
+	private static void createUsersTable() throws SQLException {
+		s.execute(createUSERS);
 				
 		PreparedStatement ps = conn.prepareStatement("INSERT INTO USERS(USERNAME, PASSHASH) VALUES (?, ?)");
 				
@@ -95,7 +109,11 @@ public class DBManager {
 		ps.close();
 	}
 	
-	public static void printUsers() throws SQLException {
+	private static void createChatTable() throws SQLException {
+		s.execute(createCHAT);
+	}
+	
+	private static void printUsers() throws SQLException {
 		ResultSet userlist =
 				s.executeQuery("SELECT ENTRY_TIME, USERNAME, PASSHASH " +
 				"FROM USERS ORDER BY ENTRY_TIME");
@@ -108,19 +126,19 @@ public class DBManager {
 		userlist.close();
 	}
 	
-	public static boolean isValidLogin(String user, String pass) {
+	static boolean isValidLogin(String user, String pass) {
 		
 		try {
-			// TODO this is completely vulnerable to SQL injection
-			// probable solution: restrict characters allowed in username, and
-			// verify that the cryptographic hashes we eventually use for
-			// passwords will not have potentially harmful characters
+            if (!user.matches("[A-Za-z0-9_.]+") ||
+                    !pass.matches("[A-Za-z0-9_.]+")) {
+                return false;
+            }
 			ResultSet findUser =
 				s.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '" +
 				user + "' AND PASSHASH = '" + pass + "'");
 			return findUser.next();
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}
