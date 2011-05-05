@@ -4,13 +4,16 @@ public class ServerProtocol {
 	private ServerState ss = ServerState.PRELOGIN;
 		
 	public String processInput(String inText) {
+		int splitPoint = inText.indexOf(":");
+		String user = inText.substring(0, splitPoint);
+		String info = inText.substring(splitPoint + 1);
 	
 		if (ss == ServerState.PRELOGIN) {
-			// login[0] is username, login[1] is password
+			// here, "info" is password
 			// TODO: passwords should actually be salted hashes at this point
 			String[] login = inText.split(":");
 			
-			boolean valid = DBManager.isValidLogin(login[0], login[1]);
+			boolean valid = DBManager.isValidLogin(user, info);
 			
 			if (valid) {
 				ss = ServerState.POSTLOGIN;
@@ -19,7 +22,8 @@ public class ServerProtocol {
 				return "reject";
 			}
 		} else if (ss == ServerState.POSTLOGIN) {
-			// TODO: process chat messages?
+			// here, "info" is a chat message
+			DBManager.writeChatMessage(user, info);
 		}
 		return null;
 	}

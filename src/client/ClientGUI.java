@@ -9,6 +9,8 @@ package client;
 import java.text.DateFormat;
 import java.util.Date;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Nathan
@@ -252,31 +254,19 @@ public class ClientGUI extends javax.swing.JFrame {
     }
 
     private void handleChatSubmission() {
-        // TODO update this to do db writes
         String inputText = chatInput.getText();
 
-        if (isValidInput(inputText)) {
-            String chatText = chatOutput.getText();
-            if (!chatText.endsWith("\n") && chatText.length() > 0) {
-                chatText += "\n";
-            }
-
-            // This is dirty, but it will go away when we start using a db,
-            // since we'll be retrieving the time from a db column instead of
-            // measuring it here
-            String currentTime = DateFormat.getTimeInstance(DateFormat.MEDIUM)
-                    .format(new Date());
-
-            chatText += "(" + currentTime + ") " + user + "> " + inputText;
-            chatOutput.setText(chatText);
-            chatInput.setText("");
-        } else {
-            // TODO pop up warning for invalid input
+        if (inputText.length() > 0) {
+        	if (inputText.length() < 256) {
+        		ConnectionManager.sendString(user + ":" + inputText);
+        		chatInput.setText("");
+        	} else {
+        		JOptionPane.showMessageDialog(null,
+                        "Error: Message length is limited to 256 characters.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+        	}
         }
-    }
-
-    private boolean isValidInput(String input) {
-        return input.length() > 0 && input.length() < 256;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

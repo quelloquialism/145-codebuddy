@@ -7,10 +7,12 @@ public class DBManager {
 	private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
 	private static final String dbName = "codebuddy";
 	private static final String connectionURL = "jdbc:derby:" + dbName + ";create=true";
+	
 	private static final String createUSERS = "CREATE TABLE USERS (" +
 			"USERNAME VARCHAR(20) NOT NULL, " +
 			"PASSHASH VARCHAR(32) NOT NULL, " +
 			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+	
 	private static final String createCHAT = "CREATE TABLE CHAT (" +
 			"USERNAME VARCHAR(20) NOT NULL, " +
 			"MESSAGE VARCHAR(255) NOT NULL, " +
@@ -18,6 +20,7 @@ public class DBManager {
 
 	private static Connection conn = null;
 	private static Statement s = null;
+	private static PreparedStatement psChat = null;
 
 	static void init() {
 		// Load the JDBC JavaDB/Derby driver
@@ -36,6 +39,7 @@ public class DBManager {
 
 			// Create an SQL statement to use for queries, etc.
 			s = conn.createStatement();
+			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
 
 			// Create users table, if it does not exist.
 			DatabaseMetaData dbmd = conn.getMetaData();
@@ -113,19 +117,6 @@ public class DBManager {
 		s.execute(createCHAT);
 	}
 	
-	private static void printUsers() throws SQLException {
-		ResultSet userlist =
-				s.executeQuery("SELECT ENTRY_TIME, USERNAME, PASSHASH " +
-				"FROM USERS ORDER BY ENTRY_TIME");
-		while (userlist.next()) {
-			System.out.println("User account " + userlist.getString(2));
-			System.out.println("Creation time: " + userlist.getTimestamp(1));
-			System.out.println("Password: " + userlist.getString(3));
-			System.out.println();
-		}
-		userlist.close();
-	}
-	
 	static boolean isValidLogin(String user, String pass) {
 		
 		try {
@@ -141,5 +132,29 @@ public class DBManager {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	static void writeChatMessage(String user, String msg) {
+		try {
+			psChat.setString(1, user);
+			psChat.setString(2, msg);
+			psChat.executeUpdate();
+			printChat();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	static void printChat() throws SQLException {
+		ResultSet userlist =
+			s.executeQuery("SELECT ENTRY_TIME, USERNAME, MESSAGE " +
+			"FROM CHAT ORDER BY ENTRY_TIME");
+		while (userlist.next()) {
+			System.out.println("User account " + userlist.getString(2));
+			System.out.println("Creation time: " + userlist.getTimestamp(1));
+			System.out.println("Message: " + userlist.getString(3));
+			System.out.println();
+		}
+		userlist.close();
 	}
 }

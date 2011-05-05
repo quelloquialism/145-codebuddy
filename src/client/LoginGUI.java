@@ -138,26 +138,15 @@ public class LoginGUI extends JFrame {
      * Check whether the current username/password combination is valid.
      */
     private void checkCredentials() {
-        // TODO down the road, this will be backed by some db table on the
-        // server--right now I'll just check that the username is valid.
         final String user = usernameInput.getText();
         final String pass = passwordInput.getText();
         boolean valid = false;
 
         if (user.length() >= 3 && user.length() <= 16 &&
                 user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {
-            // TODO initiate server communication
-        	String srvrAddr = "minthe.ugcs.caltech.edu";
-        	Socket srvrSoc = null;
-        	PrintWriter srvrOut = null;
-        	BufferedReader srvrIn = null;
         	
         	try {
-        		InetAddress srvr = InetAddress.getByName(srvrAddr);
-        		srvrSoc = new Socket(srvr, 4444);
-        		srvrOut = new PrintWriter(srvrSoc.getOutputStream(), true);
-        		srvrIn = new BufferedReader(new InputStreamReader(
-        				srvrSoc.getInputStream()));
+        		ConnectionManager.openConnection();
         	} catch (Exception e) {
         		JOptionPane.showMessageDialog(null,
                         "Error: Could not establish connection with server.",
@@ -166,9 +155,9 @@ public class LoginGUI extends JFrame {
         		return;
         	}
         	
-        	srvrOut.println(user + ":" + pass);
+        	ConnectionManager.sendString(user + ":" + pass);
         	try {
-        		String srvrResponse = srvrIn.readLine();
+        		String srvrResponse = ConnectionManager.readLine();
         		if (srvrResponse.equals("accept"))
         			valid = true;
         	} catch (Exception e) {
@@ -177,12 +166,6 @@ public class LoginGUI extends JFrame {
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
         		return;
-        	}
-        	
-        	try {
-        		srvrSoc.close();
-        	} catch (IOException e) {
-        		
         	}
         }
         
@@ -197,7 +180,6 @@ public class LoginGUI extends JFrame {
                 }
             });
         } else {
-            // TODO pop up invalid login error message
             usernameInput.setText("");
             passwordInput.setText("");
             JOptionPane.showMessageDialog(null,
