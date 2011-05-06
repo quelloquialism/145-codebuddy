@@ -155,11 +155,8 @@ public class LoginGUI extends JFrame {
         		return;
         	}
         	
-        	ConnectionManager.sendString(user + ":" + pass);
         	try {
-        		String srvrResponse = ConnectionManager.readLine();
-        		if (srvrResponse.equals("accept"))
-        			valid = true;
+        		valid = ConnectionManager.login(user, pass);
         	} catch (Exception e) {
         		JOptionPane.showMessageDialog(null,
                         "Error: Communication with server interrupted.",
@@ -171,6 +168,8 @@ public class LoginGUI extends JFrame {
 
         
         if (valid) {
+			ConnectionManager.syncClock();
+			
         	// TODO this is dirty--it means the login window disappears and
             // the chat program starts, but in reality the login window is just
             // hiding, serving as the parent of the chat window.

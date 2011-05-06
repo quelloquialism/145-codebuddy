@@ -21,6 +21,7 @@ public class DBManager {
 	private static Connection conn = null;
 	private static Statement s = null;
 	private static PreparedStatement psChat = null;
+	private static PreparedStatement psHist = null;
 
 	static void init() {
 		// Load the JDBC JavaDB/Derby driver
@@ -40,6 +41,7 @@ public class DBManager {
 			// Create an SQL statement to use for queries, etc.
 			s = conn.createStatement();
 			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
+			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");
 
 			// Create users table, if it does not exist.
 			DatabaseMetaData dbmd = conn.getMetaData();
@@ -118,7 +120,6 @@ public class DBManager {
 	}
 	
 	static boolean isValidLogin(String user, String pass) {
-		
 		try {
             if (!user.matches("[A-Za-z0-9_.]+") ||
                     !pass.matches("[A-Za-z0-9_.]+")) {
@@ -142,6 +143,22 @@ public class DBManager {
 			printChat();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	static String getChatSince(long time) {
+		try {
+			Timestamp begin = new Timestamp(time);
+			psHist.setTimestamp(1, begin);
+			ResultSet msgs = psHist.executeQuery();
+			String ret = "";
+			while (msgs.next()) {
+				ret += msgs.getString(1) + "> " + msgs.getString(2) + "\n";
+			}
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	

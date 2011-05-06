@@ -45,6 +45,9 @@ public class ClientGUI extends javax.swing.JFrame {
         spNoProj.getViewport().add(panNoProj);
         spNoProj.setVisible(true);
         spTreeAndEditor.setLeftComponent(spNoProj);
+        
+        ChatUpdateThread cut = new ChatUpdateThread();
+        cut.start();
     }
 
     public void init()
@@ -360,7 +363,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
         if (inputText.length() > 0) {
         	if (inputText.length() < 256) {
-        		ConnectionManager.sendString(user + ":" + inputText);
+        		ConnectionManager.sendChat(user, inputText);
         		chatInput.setText("");
         	} else {
         		JOptionPane.showMessageDialog(null,
@@ -369,6 +372,24 @@ public class ClientGUI extends javax.swing.JFrame {
                         JOptionPane.ERROR_MESSAGE);
         	}
         }
+    }
+    
+    private class ChatUpdateThread extends Thread {
+    	public void run() {
+    		while (true) {
+    			try {
+    				String[] msgs = ConnectionManager.updateChat();
+    				for (String s : msgs) {
+    					chatOutput.append("\n" + s);
+    				}
+    				sleep(100);
+    			} catch (InterruptedException e) {
+    				
+    			} catch (IOException e) {
+    				
+    			}
+    		}
+    	}
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

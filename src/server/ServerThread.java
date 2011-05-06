@@ -23,7 +23,17 @@ public class ServerThread extends Thread {
 
 			while ((userInput = in.readLine()) != null) {
 				outputLine = msp.processInput(userInput);
-				out.println(outputLine);
+				if (outputLine != null) {
+					if (outputLine.contains("\n")) {
+						String[] tmp = outputLine.split("\n");
+						out.println(tmp[0]);
+						out.println("" + (tmp.length-1));
+						for (int i = 1; i < tmp.length; i++)
+							out.println(tmp[i]);
+					} else {
+						out.println(outputLine);
+					}
+				}
 			}
 			out.close();
 			in.close();
