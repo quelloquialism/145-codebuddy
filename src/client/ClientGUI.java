@@ -8,6 +8,10 @@ package client;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.tree.*;
+import java.awt.*;
 
 /**
  *
@@ -16,12 +20,54 @@ import java.util.Date;
 public class ClientGUI extends javax.swing.JFrame {
 
     private String user = null;
+    private String currProjLoc;
+    private JLabel lbNoProj = new JLabel();
+    private JPanel panNoProj = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JScrollPane spNoProj = new javax.swing.JScrollPane();
     
     /** Creates new form ClientsGUI */
     public ClientGUI(String user) {
         this.user = user;
         initComponents();
         this.setLayout(new java.awt.BorderLayout());
+
+        lbNoProj.setText("<No Project Loaded>");        
+        lbNoProj.setLocation(0, 0);
+        lbNoProj.setAlignmentX(LEFT_ALIGNMENT);
+        
+        panNoProj.add(lbNoProj);
+        panNoProj.setPreferredSize(new Dimension(200, 200));
+        panNoProj.setBackground(Color.white);
+        panNoProj.setAlignmentX(LEFT_ALIGNMENT);
+
+        spNoProj.getViewport().add(panNoProj);
+        spNoProj.setVisible(true);
+        spTreeAndEditor.setLeftComponent(spNoProj);
+    }
+
+    public void init()
+    {
+        this.sourceTree.addMouseListener(new ProjTreeMouse(this));
+    }
+
+    public JTabbedPane getCodePane()
+    {
+        return this.codePane;
+    }
+
+    public JTree getSrcTree()
+    {
+        return this.sourceTree;
+    }
+
+    public String getCurrProjLoc()
+    {
+        return this.currProjLoc;
+    }
+
+    public void setCurrProjLoc(String cpl)
+    {
+        this.currProjLoc = cpl;
     }
 
     /** This method is called from within the constructor to
@@ -43,11 +89,10 @@ public class ClientGUI extends javax.swing.JFrame {
         chatOutput = new javax.swing.JTextArea();
         chatInput = new javax.swing.JTextField();
         sendButton = new javax.swing.JButton();
-        jSplitPane3 = new javax.swing.JSplitPane();
+        spTreeAndEditor = new javax.swing.JSplitPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         sourceTree = new javax.swing.JTree();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        codeFrame = new javax.swing.JTextArea();
+        codePane = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         miNewProj = new javax.swing.JMenuItem();
@@ -130,25 +175,24 @@ public class ClientGUI extends javax.swing.JFrame {
 
         spMiddle.setRightComponent(spMsgAndChat);
 
-        jSplitPane3.setDividerLocation(200);
+        spTreeAndEditor.setDividerLocation(200);
 
         sourceTree.setPreferredSize(new java.awt.Dimension(200, 200));
         jScrollPane2.setViewportView(sourceTree);
 
-        jSplitPane3.setLeftComponent(jScrollPane2);
+        spTreeAndEditor.setLeftComponent(jScrollPane2);
+        spTreeAndEditor.setRightComponent(codePane);
 
-        codeFrame.setColumns(20);
-        codeFrame.setRows(5);
-        codeFrame.setPreferredSize(new java.awt.Dimension(164, 200));
-        jScrollPane3.setViewportView(codeFrame);
-
-        jSplitPane3.setRightComponent(jScrollPane3);
-
-        spMiddle.setLeftComponent(jSplitPane3);
+        spMiddle.setLeftComponent(spTreeAndEditor);
 
         jMenu1.setText("File");
 
         miNewProj.setText("New Project...");
+        miNewProj.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miNewProjActionPerformed(evt);
+            }
+        });
         jMenu1.add(miNewProj);
 
         jMenuBar1.add(jMenu1);
@@ -220,6 +264,64 @@ public class ClientGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_formWindowStateChanged
 
+    private void miNewProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miNewProjActionPerformed
+        new NewProjGUI(this, true).setVisible(true);
+
+        readCurrProj();
+    }//GEN-LAST:event_miNewProjActionPerformed
+
+    private void readCurrProj()
+    {
+        spTreeAndEditor.setLeftComponent(jScrollPane2);
+        //sourceTree.removeAll();
+
+        String projName = currProjLoc.substring(currProjLoc.lastIndexOf("/")+1,
+            currProjLoc.lastIndexOf("."));
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ProjFile(
+                projName, false));
+        DefaultMutableTreeNode src = new DefaultMutableTreeNode(new ProjFile(
+                "src", false));
+        root.add(src);
+
+        try
+        {
+            FileInputStream fstream = new FileInputStream(currProjLoc);
+
+            // Get the object of DataInputStream
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+            String strLine;            
+            strLine = br.readLine();
+
+            if (!strLine.equals("<src>"))
+            {
+                JOptionPane.showMessageDialog(null,
+                    "Error: Invalid project file.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                in.close();
+                return;
+            }
+
+            while (!(strLine = br.readLine()).equals("</src>"))
+            {              
+              src.add(new DefaultMutableTreeNode(new ProjFile(
+                    strLine.substring(strLine.lastIndexOf("/")+1), true)));
+            }
+
+            in.close();
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        ProjTreeModel tm = new ProjTreeModel(root);
+        this.sourceTree.setModel(tm);
+    }
+
     @Override
     public void validate()
     {
@@ -283,14 +385,12 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextField chatInput;
     private javax.swing.JTextArea chatOutput;
     private javax.swing.JScrollPane chatViewer;
-    private javax.swing.JTextArea codeFrame;
+    private javax.swing.JTabbedPane codePane;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSplitPane jSplitPane3;
     private javax.swing.JLabel lbCaption;
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
@@ -299,6 +399,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTree sourceTree;
     private javax.swing.JSplitPane spMiddle;
     private javax.swing.JSplitPane spMsgAndChat;
+    private javax.swing.JSplitPane spTreeAndEditor;
     // End of variables declaration//GEN-END:variables
 
 }

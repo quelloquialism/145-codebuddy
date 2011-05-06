@@ -147,9 +147,10 @@ public class LoginGUI extends JFrame {
         // server--right now I'll just check that the username is valid.
         final String user = usernameInput.getText();
         final String pass = passwordInput.getText();
-        boolean valid = false;
+        //boolean valid = false;
+        boolean valid = true;
 
-        if (user.length() >= 3 && user.length() <= 16 &&
+        /*if (user.length() >= 3 && user.length() <= 16 &&
                 user.matches("[A-Za-z0-9_.]+")) {
             // TODO initiate server communication
         	String srvrAddr = "minthe.ugcs.caltech.edu";
@@ -189,7 +190,7 @@ public class LoginGUI extends JFrame {
         	} catch (IOException e) {
         		
         	}
-        }
+        }*/
         
         if (valid) {
         	// TODO this is dirty--it means the login window disappears and
@@ -198,7 +199,9 @@ public class LoginGUI extends JFrame {
             setVisible(false);
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    new ClientGUI(user).setVisible(true);
+                    ClientGUI client = new ClientGUI(user);
+                    client.init();
+                    client.setVisible(true);                    
                 }
             });
         } else {
