@@ -379,8 +379,11 @@ public class ClientGUI extends javax.swing.JFrame {
     		while (true) {
     			try {
     				String[] msgs = ConnectionManager.updateChat();
-    				for (String s : msgs) {
-    					chatOutput.append("\n" + s);
+    				if (msgs.length > 0) {
+    					for (String s : msgs) {
+    						chatOutput.append("\n" + s);
+    					}
+    					chatOutput.setCaretPosition(chatOutput.getDocument().getLength());
     				}
     				sleep(100);
     			} catch (InterruptedException e) {
