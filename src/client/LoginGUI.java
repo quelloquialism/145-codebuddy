@@ -6,13 +6,8 @@
 
 package client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-
+import java.io.*;
+import java.net.*;
 import javax.swing.*;
 
 /**
@@ -143,27 +138,23 @@ public class LoginGUI extends JFrame {
      * Check whether the current username/password combination is valid.
      */
     private void checkCredentials() {
-        // TODO down the road, this will be backed by some db table on the
-        // server--right now I'll just check that the username is valid.
         final String user = usernameInput.getText();
         final String pass = passwordInput.getText();
         //boolean valid = false;
         boolean valid = true;
 
-        /*if (user.length() >= 3 && user.length() <= 16 &&
+        if (user.length() >= 3 && user.length() <= 16 &&
                 user.matches("[A-Za-z0-9_.]+")) {
             // TODO initiate server communication
         	String srvrAddr = "minthe.ugcs.caltech.edu";
         	Socket srvrSoc = null;
         	PrintWriter srvrOut = null;
         	BufferedReader srvrIn = null;
-        	
+
+        if (user.length() >= 3 && user.length() <= 16 &&
+                user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {        	
         	try {
-        		InetAddress srvr = InetAddress.getByName(srvrAddr);
-        		srvrSoc = new Socket(srvr, 4444);
-        		srvrOut = new PrintWriter(srvrSoc.getOutputStream(), true);
-        		srvrIn = new BufferedReader(new InputStreamReader(
-        				srvrSoc.getInputStream()));
+        		ConnectionManager.openConnection();
         	} catch (Exception e) {
         		JOptionPane.showMessageDialog(null,
                         "Error: Could not establish connection with server.",
@@ -172,9 +163,9 @@ public class LoginGUI extends JFrame {
         		return;
         	}
         	
-        	srvrOut.println(user + ":" + pass);
+        	ConnectionManager.sendString(user + ":" + pass);
         	try {
-        		String srvrResponse = srvrIn.readLine();
+        		String srvrResponse = ConnectionManager.readLine();
         		if (srvrResponse.equals("accept"))
         			valid = true;
         	} catch (Exception e) {
@@ -183,14 +174,14 @@ public class LoginGUI extends JFrame {
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
         		return;
-        	}
-        	
+        	}        	
         	try {
         		srvrSoc.close();
         	} catch (IOException e) {
         		
         	}
-        }*/
+        }
+
         
         if (valid) {
         	// TODO this is dirty--it means the login window disappears and
@@ -205,7 +196,6 @@ public class LoginGUI extends JFrame {
                 }
             });
         } else {
-            // TODO pop up invalid login error message
             usernameInput.setText("");
             passwordInput.setText("");
             JOptionPane.showMessageDialog(null,
@@ -214,6 +204,7 @@ public class LoginGUI extends JFrame {
                                           JOptionPane.ERROR_MESSAGE);
         }
     }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

@@ -2,23 +2,18 @@ package server;
 
 public class ServerProtocol {
 	private ServerState ss = ServerState.PRELOGIN;
-	
-	// TODO: this is going to die when i roll out the JavaDBs
-	private String[] users = {"mike", "scott", "nathan"};
-	private String[] passwords = {"ekim", "ttocs", "nahtan"};
 		
 	public String processInput(String inText) {
+		int splitPoint = inText.indexOf(":");
+		String user = inText.substring(0, splitPoint);
+		String info = inText.substring(splitPoint + 1);
 	
-		// TODO: back this with a members JavaDB
 		if (ss == ServerState.PRELOGIN) {
-			// login[0] is username, login[1] is password
+			// here, "info" is password
 			// TODO: passwords should actually be salted hashes at this point
 			String[] login = inText.split(":");
 			
-			boolean valid = false;
-			for (int i = 0; i < users.length; i++)
-				if (users[i].equals(login[0]) && passwords[i].equals(login[1]))
-					valid = true;
+			boolean valid = DBManager.isValidLogin(user, info);
 			
 			if (valid) {
 				ss = ServerState.POSTLOGIN;
@@ -27,7 +22,8 @@ public class ServerProtocol {
 				return "reject";
 			}
 		} else if (ss == ServerState.POSTLOGIN) {
-			// TODO: process chat messages?
+			// here, "info" is a chat message
+			DBManager.writeChatMessage(user, info);
 		}
 		return null;
 	}
