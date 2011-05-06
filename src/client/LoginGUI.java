@@ -140,19 +140,11 @@ public class LoginGUI extends JFrame {
     private void checkCredentials() {
         final String user = usernameInput.getText();
         final String pass = passwordInput.getText();
-        //boolean valid = false;
-        boolean valid = true;
+        boolean valid = false;
 
         if (user.length() >= 3 && user.length() <= 16 &&
-                user.matches("[A-Za-z0-9_.]+")) {
-            // TODO initiate server communication
-        	String srvrAddr = "minthe.ugcs.caltech.edu";
-        	Socket srvrSoc = null;
-        	PrintWriter srvrOut = null;
-        	BufferedReader srvrIn = null;
+                user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {
 
-        if (user.length() >= 3 && user.length() <= 16 &&
-                user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {        	
         	try {
         		ConnectionManager.openConnection();
         	} catch (Exception e) {
@@ -174,11 +166,6 @@ public class LoginGUI extends JFrame {
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
         		return;
-        	}        	
-        	try {
-        		srvrSoc.close();
-        	} catch (IOException e) {
-        		
         	}
         }
 
@@ -204,7 +191,6 @@ public class LoginGUI extends JFrame {
                                           JOptionPane.ERROR_MESSAGE);
         }
     }
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
