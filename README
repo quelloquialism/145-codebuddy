@@ -1,3 +1,8 @@
 git repository for CS145 project
 Caltech Spring 2011
 Scott Liao, Mike Shafer, Nathan Watson
+
+Build requirements/dependencies:
+Java Development Kit version 6: http://www.oracle.com/us/technologies/java/
+Apache Derby: http://db.apache.org/derby/
+jsyntaxpane: http://code.google.com/p/jsyntaxpane/

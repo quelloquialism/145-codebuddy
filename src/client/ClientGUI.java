@@ -6,8 +6,6 @@
 
 package client;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.tree.*;
