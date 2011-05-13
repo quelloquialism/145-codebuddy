@@ -141,7 +141,7 @@ public class LoginGUI extends JFrame {
         final String user = usernameInput.getText();
         final String pass = passwordInput.getText();
         boolean valid = false;
-
+        
         if (user.length() >= 3 && user.length() <= 16 &&
                 user.matches("[A-Za-z0-9_.]+") && pass.length() >= 3) {
 

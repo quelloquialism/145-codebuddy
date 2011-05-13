@@ -154,7 +154,7 @@ public class NewProjGUI extends javax.swing.JDialog {
             return;
         }
 
-        String fileStr = this.txtLocation.getText() + "/" +
+        String fileStr = this.txtLocation.getText() + "\\" +
                 this.txtName.getText() + ".proj";
 
         if (new File(fileStr).exists()) {

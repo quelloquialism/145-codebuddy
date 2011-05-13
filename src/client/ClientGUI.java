@@ -101,6 +101,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         miNewProj = new javax.swing.JMenuItem();
+        miSaveProj = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -200,6 +201,14 @@ public class ClientGUI extends javax.swing.JFrame {
         });
         jMenu1.add(miNewProj);
 
+        miSaveProj.setText("Save Project");
+        miSaveProj.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSaveProjActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miSaveProj);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
@@ -275,18 +284,57 @@ public class ClientGUI extends javax.swing.JFrame {
         readCurrProj();
     }//GEN-LAST:event_miNewProjActionPerformed
 
+    private void miSaveProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSaveProjActionPerformed
+        try
+        {
+            FileWriter fstream = new FileWriter(currProjLoc);
+            BufferedWriter out = new BufferedWriter(fstream);
+            /*String path = currProjLoc.substring(0,
+                    currProjLoc.lastIndexOf("/")-1);*/
+
+            DefaultMutableTreeNode node = ((DefaultMutableTreeNode)
+                    ((DefaultMutableTreeNode)
+                    this.sourceTree.getModel().getRoot()).getChildAt(0));
+
+            //out.write("<src>\n");
+            SaveSrcTree(node, out);
+            //out.write("</src>\n");
+
+            out.close();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_miSaveProjActionPerformed
+
+    private void SaveSrcTree(DefaultMutableTreeNode parentNode,
+            BufferedWriter bw) throws Exception
+    {
+        ProjFile srcNode = (ProjFile)parentNode.getUserObject();
+
+        if (srcNode.isFile())
+            bw.write(srcNode.getText() + "\n");
+        else if (srcNode.isPackage())
+            bw.write("<"+srcNode.getText()+ ">\n");
+
+        for (int i = 0; i < parentNode.getChildCount(); i++)
+            SaveSrcTree((DefaultMutableTreeNode)parentNode.getChildAt(i), bw);
+
+        if (srcNode.isPackage())
+            bw.write("</"+srcNode.getText()+ ">\n");
+    }
+
     private void readCurrProj()
     {
         spTreeAndEditor.setLeftComponent(jScrollPane2);
-        //sourceTree.removeAll();
 
-        String projName = currProjLoc.substring(currProjLoc.lastIndexOf("/")+1,
+        String projName = currProjLoc.substring(currProjLoc.lastIndexOf("\\")+1,
             currProjLoc.lastIndexOf("."));
+        String path = currProjLoc.substring(0, currProjLoc.lastIndexOf("\\"));
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ProjFile(
-                projName, false));
+                projName, ".", ProjFile.TYPE_SYSTEM));
         DefaultMutableTreeNode src = new DefaultMutableTreeNode(new ProjFile(
-                "src", false));
+                "src", path, ProjFile.TYPE_PACKAGE));
         root.add(src);
 
         try
@@ -309,12 +357,8 @@ public class ClientGUI extends javax.swing.JFrame {
                 in.close();
                 return;
             }
-
-            while (!(strLine = br.readLine()).equals("</src>"))
-            {              
-              src.add(new DefaultMutableTreeNode(new ProjFile(
-                    strLine.substring(strLine.lastIndexOf("/")+1), true)));
-            }
+            
+            ReadSrcTree(src, br, "src");
 
             in.close();
         }
@@ -325,6 +369,47 @@ public class ClientGUI extends javax.swing.JFrame {
 
         ProjTreeModel tm = new ProjTreeModel(root);
         this.sourceTree.setModel(tm);
+    }
+
+    private void ReadSrcTree(DefaultMutableTreeNode parentNode,
+            BufferedReader br, String currPkg)
+    {
+        String strLine = null;
+
+        try
+        {
+            while(!(strLine = br.readLine()).equals("</"+currPkg+">"))
+            {
+                ProjFile srcNode = (ProjFile)parentNode.getUserObject();
+
+                // if it's a package
+                if (strLine.substring(0, 0).equals("<"))
+                {
+                    String childPkg = strLine.substring(1, strLine.lastIndexOf(">")-1);
+
+                    String path = srcNode.getPath() + "\\" + childPkg;
+
+                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(
+                            new ProjFile(childPkg, path, ProjFile.TYPE_PACKAGE));
+                    parentNode.add(child);
+
+                    ReadSrcTree(child, br, childPkg);
+                }
+                // it must be a file
+                else
+                {
+                    String path = srcNode.getPath();
+
+                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(
+                            new ProjFile(currPkg, path, ProjFile.TYPE_FILE));
+                    parentNode.add(child);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     @Override
@@ -409,6 +494,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
     private javax.swing.JMenuItem miNewProj;
+    private javax.swing.JMenuItem miSaveProj;
     private javax.swing.JButton sendButton;
     private javax.swing.JTree sourceTree;
     private javax.swing.JSplitPane spMiddle;

@@ -16,10 +16,11 @@ import javax.swing.tree.*;
  */
 public class ProjTreePopup extends JPopupMenu
 {
-    private JMenuItem menuItem;
+    private JMenuItem miNewSrc;
+    private JMenuItem miNewPkg;
     private DefaultMutableTreeNode node;
     private String path;
-    private String filename;
+    private String name;
     private ClientGUI client;
 
     public ProjTreePopup(DefaultMutableTreeNode node, String path,
@@ -27,14 +28,17 @@ public class ProjTreePopup extends JPopupMenu
     {
         ProjFile srcNode = (ProjFile)node.getUserObject();
 
-        if (srcNode.getText().equals("src"))
+        if (srcNode.isPackage())
         {
-            menuItem = new JMenuItem("New Source File");
-            add(menuItem);            
+            miNewSrc = new JMenuItem("New Source File");
+            add(miNewSrc);
+
+            miNewPkg = new JMenuItem("New Package");
+            add(miNewPkg);
         }
 
         this.node = node;
-        this.path = path;
+        this.path = srcNode.getPath();
         this.client = client;
     }
 
@@ -42,23 +46,26 @@ public class ProjTreePopup extends JPopupMenu
     {
         ProjFile srcNode = (ProjFile)this.node.getUserObject();
 
-        if (srcNode.getText().equals("src"))
+        if (srcNode.isPackage())
         {
-            menuItem.addActionListener(new ActionListener()
+            miNewSrc.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    new NewFileGUI(null, true, path, 
+                    new NewFileGUI(null, true, path,
                             ProjTreePopup.this).setVisible(true);
 
-                    if (!filename.equals(""))
+                    if (!name.equals(""))
                     {
-                        String fileOnly = filename.substring(
-                                filename.lastIndexOf("/")+1);
+                        String fileOnly = name.substring(
+                                name.lastIndexOf("\\")+1);
 
-                        ProjFile pf = new ProjFile(fileOnly, true);
+                        ProjFile pf = new ProjFile(fileOnly, name,
+                                ProjFile.TYPE_FILE);
+
                         DefaultMutableTreeNode child =
                                 new DefaultMutableTreeNode(pf);                        
+
                         ((DefaultTreeModel)client.getSrcTree().getModel()).
                                 insertNodeInto(child, node,
                                 node.getChildCount());
@@ -72,12 +79,41 @@ public class ProjTreePopup extends JPopupMenu
                     }
                 }
             });
+
+            miNewPkg.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    new NewPackageGUI(null, true, path,
+                            ProjTreePopup.this).setVisible(true);
+
+                    if (!name.equals(""))
+                    {
+                        String dirOnly = name.substring(
+                                name.lastIndexOf("\\")+1);
+                        ProjFile pf = new ProjFile(dirOnly, name,
+                                ProjFile.TYPE_PACKAGE);
+
+                        DefaultMutableTreeNode child =
+                                new DefaultMutableTreeNode(pf);
+
+                        ((DefaultTreeModel)client.getSrcTree().getModel()).
+                                insertNodeInto(child, node,
+                                node.getChildCount());
+                    }
+                }
+            });
         }
     }
 
-    public void setFilename(String file)
+    public DefaultMutableTreeNode getNode()
     {
-        this.filename = file;
+        return this.node;
+    }
+
+    public void setNodeName(String name)
+    {
+        this.name = name;
     }
 
 }

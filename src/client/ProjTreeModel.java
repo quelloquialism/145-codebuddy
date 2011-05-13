@@ -22,6 +22,6 @@ public class ProjTreeModel extends DefaultTreeModel
     public boolean isLeaf(Object onode)
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)onode;
-        return ((ProjFile)node.getUserObject()).getIsFile();
+        return ((ProjFile)node.getUserObject()).isFile();
     }
 }

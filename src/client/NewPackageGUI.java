@@ -13,18 +13,19 @@ package client;
 
 import javax.swing.*;
 import java.io.*;
+import javax.swing.tree.*;
 
 /**
  *
  * @author Mike
  */
-public class NewFileGUI extends javax.swing.JDialog {
+public class NewPackageGUI extends javax.swing.JDialog {
 
     private String path;
     private ProjTreePopup popup;
 
     /** Creates new form NewFileGUI */
-    public NewFileGUI(java.awt.Frame parent, boolean modal, String path,
+    public NewPackageGUI(java.awt.Frame parent, boolean modal, String path,
                         ProjTreePopup popup)
     {
         super(parent, modal);
@@ -49,7 +50,7 @@ public class NewFileGUI extends javax.swing.JDialog {
         btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("New File");
+        setTitle("New Package");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -117,30 +118,41 @@ public class NewFileGUI extends javax.swing.JDialog {
             this.popup.setNodeName("");
             return;
         }        
+        
+        DefaultMutableTreeNode node = this.popup.getNode();
+        int i;
+        for (i = 0; i < node.getChildCount(); i++)
+        {
+            ProjFile srcNode = 
+                    (ProjFile)((DefaultMutableTreeNode)node.getChildAt(i)).
+                    getUserObject();
+            
+            if (srcNode.getText().equals(this.txtName.getText()))
+                break;            
+        }
 
-        String fileStr = this.path + "\\" + this.txtName.getText();
-        if (!fileStr.substring(fileStr.length()-5).equals(".java"))
-            fileStr += ".java";
 
-        File file = new File(fileStr);
-
-        if (file.exists()) {
+        if (i < node.getChildCount()) {
             JOptionPane.showMessageDialog(null,
-                    "Error: Project file already exists.",
+                    "Error: Package already exists.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             this.popup.setNodeName("");
             return;
         }
 
+        String dirStr = this.path + "\\" + this.txtName.getText();
+
         try
         {
-            file.createNewFile();
-        } catch (Exception e) {
+            new File(dirStr).mkdir();
+        }
+        catch (Exception e)
+        {
             System.err.println("Error: " + e.getMessage());
         }
 
-        this.popup.setNodeName(fileStr);
+        this.popup.setNodeName(dirStr);
 
         this.setVisible(false);
 }//GEN-LAST:event_btnOkActionPerformed
@@ -151,7 +163,7 @@ public class NewFileGUI extends javax.swing.JDialog {
 }//GEN-LAST:event_btnCancelActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        this.popup.setNodeName("");
+        this.popup.setName("");
     }//GEN-LAST:event_formWindowClosed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -12,6 +12,9 @@ public class ClientMain {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new LoginGUI().setVisible(true);
+                //ClientGUI client = new ClientGUI("test");
+                //client.init();
+                //client.setVisible(true);
             }
         });
     }

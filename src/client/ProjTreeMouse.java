@@ -41,12 +41,10 @@ public class ProjTreeMouse extends MouseAdapter
                 DefaultMutableTreeNode node =
                         (DefaultMutableTreeNode)path.getLastPathComponent();
                 
-                String pathNoFile = 
-                        this.client.getCurrProjLoc().substring(0,
-                        this.client.getCurrProjLoc().lastIndexOf("/"));
+                ProjFile srcNode = (ProjFile)node.getUserObject();
 
                 ProjTreePopup ptpop = new ProjTreePopup(node,
-                        pathNoFile, this.client);
+                        srcNode.getPath(), this.client);
                 ptpop.init();
               
                 ptpop.show(mc, e.getX(),e.getY());
