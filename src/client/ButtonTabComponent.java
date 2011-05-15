@@ -17,10 +17,16 @@ import java.awt.event.*;
  */
 public class ButtonTabComponent extends JPanel {
     private final JTabbedPane pane;
+    private ProjFile node;
+    private JLabel label;
 
-    public ButtonTabComponent(final JTabbedPane pane) {
+    public ButtonTabComponent(final JTabbedPane pane, ProjFile node)
+    {        
         //unset default FlowLayout' gaps
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
+        this.node = node;
+
         if (pane == null) {
             throw new NullPointerException("TabbedPane is null");
         }
@@ -28,7 +34,7 @@ public class ButtonTabComponent extends JPanel {
         setOpaque(false);
 
         //make JLabel read titles from JTabbedPane
-        JLabel label = new JLabel() {
+        this.label = new JLabel() {
             @Override
             public String getText() {
                 int i = pane.indexOfTabComponent(ButtonTabComponent.this);
@@ -39,14 +45,34 @@ public class ButtonTabComponent extends JPanel {
             }
         };
 
-        add(label);
+        add(this.label);
         //add more space between the label and the button
-        label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        this.label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        int minWidth = ((int)(this.label.getFontMetrics(
+                this.label.getFont()).getStringBounds(node.getText(),
+                this.label.getGraphics()).getWidth()) +
+                this.label.getInsets().left + this.label.getInsets().right);
+        this.label.setBounds(0, 0, minWidth, this.label.getHeight());
+
         //tab button
         JButton button = new TabButton();
         add(button);
         //add more space to the top of the component
         setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+    }
+
+    public ProjFile getProjFileNode()
+    {
+        return this.node;
+    }
+
+    public void fixBounds()
+    {
+        int minWidth = ((int)(this.label.getFontMetrics(
+                this.label.getFont()).getStringBounds(this.label.getText(),
+                this.label.getGraphics()).getWidth()) +
+                this.label.getInsets().left + this.label.getInsets().right);
+        this.label.setBounds(0, 0, minWidth, this.label.getHeight());
     }
 
     private class TabButton extends JButton implements ActionListener {
@@ -72,7 +98,9 @@ public class ButtonTabComponent extends JPanel {
 
         public void actionPerformed(ActionEvent e) {
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
-            if (i != -1) {
+            if (i != -1)
+            {
+                node.setIsStale(false);
                 pane.remove(i);
             }
         }

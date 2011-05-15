@@ -47,20 +47,25 @@ public class ProjTreeMouse extends MouseAdapter
             int i;
             for (i = 0; i < pane.getTabCount(); i++)
             {
-                if (pane.getTitleAt(i).equals(srcNode.getText()))
+                ProjFile pfnode = ((ButtonTabComponent)
+                        pane.getTabComponentAt(i)).getProjFileNode();
+                if (pfnode == srcNode)
                 {
                     pane.setSelectedIndex(i);
                     break;
                 }
             }
 
+            // it's not open, load from file
             if (i == pane.getTabCount())
             {
                 JPanel panel = srcNode.getPanel();
 
                 pane.add(srcNode.getText(), panel);
                 pane.setTabComponentAt(pane.getTabCount()-1,
-                        new ButtonTabComponent(pane));
+                        new ButtonTabComponent(pane, srcNode));
+                this.client.getFileIO().readSrcFile(srcNode);
+                pane.setSelectedIndex(pane.getTabCount()-1);
             }
         }
     }

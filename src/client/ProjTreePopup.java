@@ -6,7 +6,6 @@
 package client;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.tree.*;
 
@@ -61,7 +60,7 @@ public class ProjTreePopup extends JPopupMenu
                                 name.lastIndexOf("\\")+1);
 
                         ProjFile pf = new ProjFile(fileOnly, name,
-                                ProjFile.TYPE_FILE);
+                                ProjFile.TYPE_FILE, client);
 
                         DefaultMutableTreeNode child =
                                 new DefaultMutableTreeNode(pf);                        
@@ -77,7 +76,8 @@ public class ProjTreePopup extends JPopupMenu
 
                         pane.add(fileOnly, panel);
                         pane.setTabComponentAt(pane.getTabCount()-1,
-                                new ButtonTabComponent(pane));
+                                new ButtonTabComponent(pane, srcNode));
+
                     }
                 }
             });
@@ -94,7 +94,7 @@ public class ProjTreePopup extends JPopupMenu
                         String dirOnly = name.substring(
                                 name.lastIndexOf("\\")+1);
                         ProjFile pf = new ProjFile(dirOnly, name,
-                                ProjFile.TYPE_PACKAGE);
+                                ProjFile.TYPE_PACKAGE, client);
 
                         DefaultMutableTreeNode child =
                                 new DefaultMutableTreeNode(pf);

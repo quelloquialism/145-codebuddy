@@ -7,6 +7,7 @@ package client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import jsyntaxpane.DefaultSyntaxKit;
 
 
@@ -26,12 +27,16 @@ public class ProjFile
     private JScrollPane scrollPane;
     private JPanel panel;
     private int type;
+    private ClientGUI client;
+    private boolean isStale;
 
-    public ProjFile(String text, String path, int type)
+    public ProjFile(String txt, String path, int type, ClientGUI c)
     {
-        this.text = text;
+        this.text = txt;
         this.type = type;
         this.path = path;
+        this.client = c;
+        this.isStale = false;
 
         if (type == TYPE_FILE)
         {
@@ -43,9 +48,44 @@ public class ProjFile
             this.panel = new JPanel(false);            
             this.scrollPane = new JScrollPane(this.textPane);
 
+            this.textPane.addKeyListener(new KeyListener()
+            {
+                public void keyPressed(KeyEvent e)
+                {
+                }
+
+                public void keyReleased(KeyEvent e)
+                {
+                }
+
+                public void keyTyped(KeyEvent e)
+                {
+                    if (!isStale)
+                    {
+                        int i;
+                        JTabbedPane tpane = client.getCodePane();
+                        for (i = 0; i < tpane.getTabCount(); i++)
+                            if (((ButtonTabComponent)
+                                tpane.getTabComponentAt(i)).getProjFileNode() ==
+                                ProjFile.this)
+                                break;
+
+                        tpane.setTitleAt(i, text+"*");
+                        ((ButtonTabComponent)
+                                tpane.getTabComponentAt(i)).fixBounds();
+                        isStale = true;
+                    }
+                }
+            });
+
             this.panel.add(this.scrollPane);
-            this.panel.setLayout(new GridLayout(1, 1));            
+            this.panel.setLayout(new GridLayout(1, 1));
         }
+    }
+
+    public boolean getIsStale()
+    {
+        return this.isStale;
     }
 
     public String getText()
@@ -71,6 +111,16 @@ public class ProjFile
     public JPanel getPanel()
     {
         return this.panel;
+    }
+
+    public JEditorPane getPane()
+    {
+        return this.textPane;
+    }
+
+    public void setIsStale(boolean stale)
+    {
+        this.isStale = stale;
     }
 
     @Override

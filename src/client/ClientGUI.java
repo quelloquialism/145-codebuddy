@@ -24,6 +24,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private JLabel lbNoProj = new JLabel();
     private JPanel panNoProj = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JScrollPane spNoProj = new javax.swing.JScrollPane();
+    private FileIO fileIO;
     
     /** Creates new form ClientsGUI */
     public ClientGUI(String user) {
@@ -51,6 +52,12 @@ public class ClientGUI extends javax.swing.JFrame {
     public void init()
     {
         this.sourceTree.addMouseListener(new ProjTreeMouse(this));
+        fileIO = new FileIO(this);
+    }
+
+    public FileIO getFileIO()
+    {
+        return this.fileIO;
     }
 
     public JTabbedPane getCodePane()
@@ -104,6 +111,9 @@ public class ClientGUI extends javax.swing.JFrame {
         miCloseProject = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         miSaveProj = new javax.swing.JMenuItem();
+        miSaveFile = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        miExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -229,6 +239,23 @@ public class ClientGUI extends javax.swing.JFrame {
         });
         jMenu1.add(miSaveProj);
 
+        miSaveFile.setText("Save File");
+        miSaveFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSaveFileActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miSaveFile);
+        jMenu1.add(jSeparator3);
+
+        miExit.setText("Exit");
+        miExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miExitActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miExit);
+
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
@@ -337,12 +364,12 @@ public class ClientGUI extends javax.swing.JFrame {
                     ((DefaultMutableTreeNode)
                     this.sourceTree.getModel().getRoot()).getChildAt(0));
 
-            //out.write("<src>\n");
-            SaveSrcTree(node, out);
-            //out.write("</src>\n");
+            fileIO.saveSrcTree(node, out);
 
             out.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("Error: " + e.getMessage());
         }
     }//GEN-LAST:event_miSaveProjActionPerformed
@@ -375,110 +402,23 @@ public class ClientGUI extends javax.swing.JFrame {
         this.currProjLoc = "";
     }//GEN-LAST:event_miCloseProjectActionPerformed
 
-    private void SaveSrcTree(DefaultMutableTreeNode parentNode,
-            BufferedWriter bw) throws Exception
-    {
-        ProjFile srcNode = (ProjFile)parentNode.getUserObject();
+    private void miSaveFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSaveFileActionPerformed
+        ButtonTabComponent comp = (ButtonTabComponent)
+                this.codePane.getTabComponentAt(
+                this.codePane.getSelectedIndex());
 
-        if (srcNode.isFile())
-            bw.write(srcNode.getText() + "\n");
-        else if (srcNode.isPackage())
-            bw.write("<"+srcNode.getText()+ ">\n");
+        ProjFile pf = comp.getProjFileNode();        
+        fileIO.saveSrcFile(pf);
+    }//GEN-LAST:event_miSaveFileActionPerformed
 
-        for (int i = 0; i < parentNode.getChildCount(); i++)
-            SaveSrcTree((DefaultMutableTreeNode)parentNode.getChildAt(i), bw);
-
-        if (srcNode.isPackage())
-            bw.write("</"+srcNode.getText()+ ">\n");
-    }
+    private void miExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExitActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_miExitActionPerformed
 
     public void readCurrProj()
     {
         spTreeAndEditor.setLeftComponent(jScrollPane2);
-
-        String projName = currProjLoc.substring(currProjLoc.lastIndexOf("\\")+1,
-            currProjLoc.lastIndexOf("."));
-        String path = currProjLoc.substring(0, currProjLoc.lastIndexOf("\\"));
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ProjFile(
-                projName, ".", ProjFile.TYPE_SYSTEM));
-        DefaultMutableTreeNode src = new DefaultMutableTreeNode(new ProjFile(
-                "src", path, ProjFile.TYPE_PACKAGE));
-        root.add(src);
-
-        try
-        {
-            FileInputStream fstream = new FileInputStream(currProjLoc);
-
-            // Get the object of DataInputStream
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-            String strLine;            
-            strLine = br.readLine();
-
-            if (!strLine.equals("<src>"))
-            {
-                JOptionPane.showMessageDialog(null,
-                    "Error: Invalid project file.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-                in.close();
-                return;
-            }
-            
-            ReadSrcTree(src, br, "src");
-
-            in.close();
-        }
-        catch (Exception e)
-        {
-            System.err.println("Error: " + e.getMessage());
-        }
-
-        ProjTreeModel tm = new ProjTreeModel(root);
-        this.sourceTree.setModel(tm);
-    }
-
-    private void ReadSrcTree(DefaultMutableTreeNode parentNode,
-            BufferedReader br, String currPkg)
-    {
-        String strLine = null;
-
-        try
-        {
-            while(!(strLine = br.readLine()).equals("</"+currPkg+">"))
-            {
-                ProjFile srcNode = (ProjFile)parentNode.getUserObject();
-
-                // if it's a package
-                if (strLine.substring(0, 1).equals("<"))
-                {
-                    String childPkg = strLine.substring(1, strLine.lastIndexOf(">"));
-
-                    String path = srcNode.getPath() + "\\" + childPkg;
-
-                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(
-                            new ProjFile(childPkg, path, ProjFile.TYPE_PACKAGE));
-                    parentNode.add(child);
-
-                    ReadSrcTree(child, br, childPkg);
-                }
-                // it must be a file
-                else
-                {
-                    String path = srcNode.getPath();
-
-                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(
-                            new ProjFile(strLine, path, ProjFile.TYPE_FILE));
-                    parentNode.add(child);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            System.err.println("Error: " + e.getMessage());
-        }
+        fileIO.readProj(this.currProjLoc);
     }
 
     @Override
@@ -561,12 +501,15 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JLabel lbCaption;
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
     private javax.swing.JMenuItem miCloseProject;
+    private javax.swing.JMenuItem miExit;
     private javax.swing.JMenuItem miNewProj;
     private javax.swing.JMenuItem miOpenProject;
+    private javax.swing.JMenuItem miSaveFile;
     private javax.swing.JMenuItem miSaveProj;
     private javax.swing.JButton sendButton;
     private javax.swing.JTree sourceTree;
