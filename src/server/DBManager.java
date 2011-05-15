@@ -1,6 +1,7 @@
 package server;
 
 import java.sql.*;
+import bcrypt.BCrypt;
 
 public class DBManager {
 
@@ -10,7 +11,7 @@ public class DBManager {
 	
 	private static final String createUSERS = "CREATE TABLE USERS (" +
 			"USERNAME VARCHAR(20) NOT NULL, " +
-			"PASSHASH VARCHAR(32) NOT NULL, " +
+			"PASSHASH VARCHAR(255) NOT NULL, " +
 			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 	
 	private static final String createCHAT = "CREATE TABLE CHAT (" +
@@ -40,8 +41,6 @@ public class DBManager {
 
 			// Create an SQL statement to use for queries, etc.
 			s = conn.createStatement();
-			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
-			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");
 
 			// Create users table, if it does not exist.
 			DatabaseMetaData dbmd = conn.getMetaData();
@@ -60,6 +59,8 @@ public class DBManager {
 				System.err.println("CHAT table created.");
 			}
 			
+			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
+			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -99,17 +100,17 @@ public class DBManager {
 				
 		// Make the "nathan" account
 		ps.setString(1, "nathan");
-		ps.setString(2, "nahtan");
+		ps.setString(2, BCrypt.hashpw("nahtan", BCrypt.gensalt()));
 		ps.executeUpdate();
 				
 		// Make the "mike" account
 		ps.setString(1, "mike");
-		ps.setString(2, "ekim");
+		ps.setString(2, BCrypt.hashpw("ekim", BCrypt.gensalt()));
 		ps.executeUpdate();
 				
 		// Make the "scott" account
 		ps.setString(1, "scott");
-		ps.setString(2, "ttocs");
+		ps.setString(2, BCrypt.hashpw("ttocs", BCrypt.gensalt()));
 		ps.executeUpdate();
 				
 		ps.close();
@@ -126,9 +127,9 @@ public class DBManager {
                 return false;
             }
 			ResultSet findUser =
-				s.executeQuery("SELECT USERNAME FROM USERS WHERE USERNAME = '" +
-				user + "' AND PASSHASH = '" + pass + "'");
-			return findUser.next();
+				s.executeQuery("SELECT PASSHASH FROM USERS WHERE USERNAME = '" +
+						user + "'");
+			return findUser.next() && BCrypt.checkpw(pass, findUser.getString(1));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
