@@ -178,6 +178,7 @@ public class NewProjGUI extends javax.swing.JDialog {
         }
 
         this.invoker.setCurrProjLoc(fileStr);
+        this.invoker.readCurrProj();
 
         this.setVisible(false);
     }//GEN-LAST:event_btnOkActionPerformed

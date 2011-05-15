@@ -119,8 +119,6 @@ public class NewFileGUI extends javax.swing.JDialog {
         }        
 
         String fileStr = this.path + "\\" + this.txtName.getText();
-        if (!fileStr.substring(fileStr.length()-5).equals(".java"))
-            fileStr += ".java";
 
         File file = new File(fileStr);
 

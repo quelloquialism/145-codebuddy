@@ -75,7 +75,9 @@ public class ProjTreePopup extends JPopupMenu
                         JTabbedPane pane = client.getCodePane();
                         JPanel panel = srcNode.getPanel();
 
-                        pane.addTab(fileOnly, null, panel, fileOnly);
+                        pane.add(fileOnly, panel);
+                        pane.setTabComponentAt(pane.getTabCount()-1,
+                                new ButtonTabComponent(pane));
                     }
                 }
             });

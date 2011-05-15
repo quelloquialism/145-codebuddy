@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 public class ClientGUI extends javax.swing.JFrame {
 
     private String user = null;
-    private String currProjLoc;
+    private String currProjLoc = "";
     private JLabel lbNoProj = new JLabel();
     private JPanel panNoProj = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JScrollPane spNoProj = new javax.swing.JScrollPane();
@@ -99,6 +99,10 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         miNewProj = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        miOpenProject = new javax.swing.JMenuItem();
+        miCloseProject = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         miSaveProj = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
@@ -198,6 +202,24 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
         jMenu1.add(miNewProj);
+        jMenu1.add(jSeparator1);
+
+        miOpenProject.setText("Open Project...");
+        miOpenProject.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miOpenProjectActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miOpenProject);
+
+        miCloseProject.setText("Close Project");
+        miCloseProject.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miCloseProjectActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miCloseProject);
+        jMenu1.add(jSeparator2);
 
         miSaveProj.setText("Save Project");
         miSaveProj.addActionListener(new java.awt.event.ActionListener() {
@@ -276,10 +298,31 @@ public class ClientGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_formWindowStateChanged
 
+    private boolean showSavePromptDialog(java.awt.event.ActionEvent evt)
+    {
+        if (!this.currProjLoc.equals(""))
+        {
+            int res = JOptionPane.showConfirmDialog(null, "Would you like "+
+                    "to save the current project?",
+                    "Choose an option",
+                    JOptionPane.YES_NO_CANCEL_OPTION);
+
+            if (res == JOptionPane.YES_OPTION)
+                miSaveProjActionPerformed(evt);
+            else if (res == JOptionPane.CANCEL_OPTION)
+                return false;
+        }
+
+        return true;
+    }
+
     private void miNewProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miNewProjActionPerformed
+
+        if (!showSavePromptDialog(evt))
+            return;
+        
         new NewProjGUI(this, true).setVisible(true);
 
-        readCurrProj();
     }//GEN-LAST:event_miNewProjActionPerformed
 
     private void miSaveProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSaveProjActionPerformed
@@ -304,6 +347,34 @@ public class ClientGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_miSaveProjActionPerformed
 
+    private void miOpenProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miOpenProjectActionPerformed
+        
+        if (!showSavePromptDialog(evt))
+            return;
+
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new ProjFileFilter());
+        int returnVal = fc.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            File file = fc.getSelectedFile();
+            this.currProjLoc = file.getPath();
+            readCurrProj();
+        }
+    }//GEN-LAST:event_miOpenProjectActionPerformed
+
+    private void miCloseProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miCloseProjectActionPerformed
+        
+        if (!showSavePromptDialog(evt))
+            return;
+
+        // Note: the src tree stays the same, but we cover it up until the
+        // next open project or new project :)
+        spTreeAndEditor.setLeftComponent(spNoProj);
+        this.currProjLoc = "";
+    }//GEN-LAST:event_miCloseProjectActionPerformed
+
     private void SaveSrcTree(DefaultMutableTreeNode parentNode,
             BufferedWriter bw) throws Exception
     {
@@ -321,7 +392,7 @@ public class ClientGUI extends javax.swing.JFrame {
             bw.write("</"+srcNode.getText()+ ">\n");
     }
 
-    private void readCurrProj()
+    public void readCurrProj()
     {
         spTreeAndEditor.setLeftComponent(jScrollPane2);
 
@@ -381,9 +452,9 @@ public class ClientGUI extends javax.swing.JFrame {
                 ProjFile srcNode = (ProjFile)parentNode.getUserObject();
 
                 // if it's a package
-                if (strLine.substring(0, 0).equals("<"))
+                if (strLine.substring(0, 1).equals("<"))
                 {
-                    String childPkg = strLine.substring(1, strLine.lastIndexOf(">")-1);
+                    String childPkg = strLine.substring(1, strLine.lastIndexOf(">"));
 
                     String path = srcNode.getPath() + "\\" + childPkg;
 
@@ -399,7 +470,7 @@ public class ClientGUI extends javax.swing.JFrame {
                     String path = srcNode.getPath();
 
                     DefaultMutableTreeNode child = new DefaultMutableTreeNode(
-                            new ProjFile(currPkg, path, ProjFile.TYPE_FILE));
+                            new ProjFile(strLine, path, ProjFile.TYPE_FILE));
                     parentNode.add(child);
                 }
             }
@@ -488,10 +559,14 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JLabel lbCaption;
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
+    private javax.swing.JMenuItem miCloseProject;
     private javax.swing.JMenuItem miNewProj;
+    private javax.swing.JMenuItem miOpenProject;
     private javax.swing.JMenuItem miSaveProj;
     private javax.swing.JButton sendButton;
     private javax.swing.JTree sourceTree;
