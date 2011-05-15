@@ -6,3 +6,4 @@ Build requirements/dependencies:
 Java Development Kit version 6: http://www.oracle.com/us/technologies/java/
 Apache Derby: http://db.apache.org/derby/
 jsyntaxpane: http://code.google.com/p/jsyntaxpane/
+jBCrypt: http://www.mindrot.org/projects/jBCrypt/
