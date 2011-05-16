@@ -19,13 +19,16 @@ public class ButtonTabComponent extends JPanel {
     private final JTabbedPane pane;
     private ProjFile node;
     private JLabel label;
+    private ClientGUI client;
 
-    public ButtonTabComponent(final JTabbedPane pane, ProjFile node)
+    public ButtonTabComponent(final JTabbedPane pane, ProjFile node,
+                                ClientGUI client)
     {        
         //unset default FlowLayout' gaps
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
         this.node = node;
+        this.client = client;
 
         if (pane == null) {
             throw new NullPointerException("TabbedPane is null");
@@ -96,10 +99,25 @@ public class ButtonTabComponent extends JPanel {
             addActionListener(this);
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e)
+        {
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
             if (i != -1)
             {
+                if (node.getIsStale())
+                {
+                    int res = JOptionPane.showConfirmDialog(null,
+                            "Would you like "+
+                            "to save your changes?",
+                            "Choose an option",
+                            JOptionPane.YES_NO_CANCEL_OPTION);
+
+                    if (res == JOptionPane.YES_OPTION)
+                        client.getFileIO().saveSrcFile(node);
+                    else if (res == JOptionPane.CANCEL_OPTION)
+                        return;
+                }
+
                 node.setIsStale(false);
                 pane.remove(i);
             }

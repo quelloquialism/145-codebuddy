@@ -35,6 +35,10 @@ public class ProjTreeMouse extends MouseAdapter
         {
             Point p = e.getPoint();
             TreePath path = this.sourceTree.getPathForLocation(p.x, p.y);
+            
+            if (path == null)
+                return;
+
             DefaultMutableTreeNode node =
                         (DefaultMutableTreeNode)path.getLastPathComponent();
             ProjFile srcNode = (ProjFile)node.getUserObject();
@@ -63,8 +67,9 @@ public class ProjTreeMouse extends MouseAdapter
 
                 pane.add(srcNode.getText(), panel);
                 pane.setTabComponentAt(pane.getTabCount()-1,
-                        new ButtonTabComponent(pane, srcNode));
+                        new ButtonTabComponent(pane, srcNode, this.client));
                 this.client.getFileIO().readSrcFile(srcNode);
+                srcNode.setLineNumbers();
                 pane.setSelectedIndex(pane.getTabCount()-1);
             }
         }

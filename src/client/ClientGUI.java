@@ -44,7 +44,7 @@ public class ClientGUI extends javax.swing.JFrame {
         spNoProj.getViewport().add(panNoProj);
         spNoProj.setVisible(true);
         spTreeAndEditor.setLeftComponent(spNoProj);
-        
+
         ChatUpdateThread cut = new ChatUpdateThread();
         cut.start();
     }
@@ -52,7 +52,7 @@ public class ClientGUI extends javax.swing.JFrame {
     public void init()
     {
         this.sourceTree.addMouseListener(new ProjTreeMouse(this));
-        fileIO = new FileIO(this);
+        this.fileIO = new FileIO(this);
     }
 
     public FileIO getFileIO()
@@ -115,6 +115,8 @@ public class ClientGUI extends javax.swing.JFrame {
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         miExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
+        miCompileProj = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
@@ -261,6 +263,18 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenu2.setText("Edit");
         jMenuBar1.add(jMenu2);
 
+        jMenu3.setText("Run");
+
+        miCompileProj.setText("Compile Project");
+        miCompileProj.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miCompileProjActionPerformed(evt);
+            }
+        });
+        jMenu3.add(miCompileProj);
+
+        jMenuBar1.add(jMenu3);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -357,8 +371,6 @@ public class ClientGUI extends javax.swing.JFrame {
         {
             FileWriter fstream = new FileWriter(currProjLoc);
             BufferedWriter out = new BufferedWriter(fstream);
-            /*String path = currProjLoc.substring(0,
-                    currProjLoc.lastIndexOf("/")-1);*/
 
             DefaultMutableTreeNode node = ((DefaultMutableTreeNode)
                     ((DefaultMutableTreeNode)
@@ -414,6 +426,10 @@ public class ClientGUI extends javax.swing.JFrame {
     private void miExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miExitActionPerformed
         System.exit(0);
     }//GEN-LAST:event_miExitActionPerformed
+
+    private void miCompileProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miCompileProjActionPerformed
+
+    }//GEN-LAST:event_miCompileProjActionPerformed
 
     public void readCurrProj()
     {
@@ -496,6 +512,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTabbedPane codePane;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -506,6 +523,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JLayeredPane lpChatArea;
     private javax.swing.JTextArea messageFrame;
     private javax.swing.JMenuItem miCloseProject;
+    private javax.swing.JMenuItem miCompileProj;
     private javax.swing.JMenuItem miExit;
     private javax.swing.JMenuItem miNewProj;
     private javax.swing.JMenuItem miOpenProject;

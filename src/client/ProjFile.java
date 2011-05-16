@@ -23,6 +23,7 @@ public class ProjFile
 
     private String text;
     private String path;
+    private JTextArea lineNumberPane;
     private JEditorPane textPane;
     private JScrollPane scrollPane;
     private JPanel panel;
@@ -44,9 +45,17 @@ public class ProjFile
 
             this.textPane = new JEditorPane();
             this.textPane.setContentType("text/java");
-            
+            this.lineNumberPane = new JTextArea("1");
+            this.lineNumberPane.setBackground(new Color(238, 238, 238));
+            this.lineNumberPane.setFont(new Font("Courier New", Font.PLAIN,
+                    15));
+            this.lineNumberPane.setBorder(
+                    BorderFactory.createEmptyBorder(4, 0, 0, 0));
+            this.lineNumberPane.setCaret(new LineNumberCaret());
+
             this.panel = new JPanel(false);            
             this.scrollPane = new JScrollPane(this.textPane);
+            this.scrollPane.setRowHeaderView(this.lineNumberPane);
 
             this.textPane.addKeyListener(new KeyListener()
             {
@@ -75,12 +84,19 @@ public class ProjFile
                                 tpane.getTabComponentAt(i)).fixBounds();
                         isStale = true;
                     }
+
+                    setLineNumbers();
                 }
             });
 
             this.panel.add(this.scrollPane);
             this.panel.setLayout(new GridLayout(1, 1));
         }
+    }
+
+    public JTextArea getLineNumberPane()
+    {
+        return this.lineNumberPane;
     }
 
     public boolean getIsStale()
@@ -121,6 +137,37 @@ public class ProjFile
     public void setIsStale(boolean stale)
     {
         this.isStale = stale;
+    }
+
+    public void setLineNumbers()
+    {
+        String text = this.textPane.getText();
+
+        int idx = 0;
+        int nlCnt = 1;
+
+        while (idx < text.length())
+        {
+            if (text.substring(idx, idx+1).equals("\n"))
+                nlCnt++;
+            idx++;
+        }
+
+        String lineStr = "";
+        String maxNum = Integer.toString(nlCnt);
+
+        for (int i = 0; i < nlCnt; i++)
+        {
+            String currNum = Integer.toString(i+1);
+            int spaces = maxNum.length() - currNum.length();
+
+            for (int j = 0; j < spaces; j++)
+                lineStr += " ";
+
+            lineStr += Integer.toString(i+1) + "\n";
+        }
+
+        this.lineNumberPane.setText(lineStr);
     }
 
     @Override

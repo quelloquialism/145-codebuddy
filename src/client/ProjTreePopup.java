@@ -58,8 +58,10 @@ public class ProjTreePopup extends JPopupMenu
                     {
                         String fileOnly = name.substring(
                                 name.lastIndexOf("\\")+1);
+                        String pathOnly = name.substring(0,
+                                name.lastIndexOf("\\"));
 
-                        ProjFile pf = new ProjFile(fileOnly, name,
+                        ProjFile pf = new ProjFile(fileOnly, pathOnly,
                                 ProjFile.TYPE_FILE, client);
 
                         DefaultMutableTreeNode child =
@@ -76,7 +78,7 @@ public class ProjTreePopup extends JPopupMenu
 
                         pane.add(fileOnly, panel);
                         pane.setTabComponentAt(pane.getTabCount()-1,
-                                new ButtonTabComponent(pane, srcNode));
+                                new ButtonTabComponent(pane, srcNode, client));
 
                     }
                 }
