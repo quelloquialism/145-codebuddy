@@ -24,6 +24,8 @@ public class ClientGUI extends javax.swing.JFrame {
     private JLabel lbNoProj = new JLabel();
     private JPanel panNoProj = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JScrollPane spNoProj = new javax.swing.JScrollPane();
+    private JScrollPane spOutput;
+    private JTextArea taOutput = new javax.swing.JTextArea("Output");
     private FileIO fileIO;
     
     /** Creates new form ClientsGUI */
@@ -32,18 +34,22 @@ public class ClientGUI extends javax.swing.JFrame {
         initComponents();
         this.setLayout(new java.awt.BorderLayout());
 
-        lbNoProj.setText("<No Project Loaded>");        
-        lbNoProj.setLocation(0, 0);
-        lbNoProj.setAlignmentX(LEFT_ALIGNMENT);
+        this.lbNoProj.setText("<No Project Loaded>");
+        this.lbNoProj.setLocation(0, 0);
+        this.lbNoProj.setAlignmentX(LEFT_ALIGNMENT);
         
-        panNoProj.add(lbNoProj);
-        panNoProj.setPreferredSize(new Dimension(200, 200));
-        panNoProj.setBackground(Color.white);
-        panNoProj.setAlignmentX(LEFT_ALIGNMENT);
+        this.panNoProj.add(lbNoProj);
+        this.panNoProj.setPreferredSize(new Dimension(200, 200));
+        this.panNoProj.setBackground(Color.white);
+        this.panNoProj.setAlignmentX(LEFT_ALIGNMENT);
 
-        spNoProj.getViewport().add(panNoProj);
-        spNoProj.setVisible(true);
-        spTreeAndEditor.setLeftComponent(spNoProj);
+        this.spNoProj.getViewport().add(panNoProj);
+        this.spNoProj.setVisible(true);
+        this.spTreeAndEditor.setLeftComponent(spNoProj);
+
+        this.taOutput.setEditable(false);
+        this.spOutput = new JScrollPane(this.taOutput);
+        this.tpOutputFrame.addTab("Output", this.spOutput);
 
         ChatUpdateThread cut = new ChatUpdateThread();
         cut.start();
@@ -92,13 +98,12 @@ public class ClientGUI extends javax.swing.JFrame {
         lbCaption = new javax.swing.JLabel();
         spMiddle = new javax.swing.JSplitPane();
         spMsgAndChat = new javax.swing.JSplitPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        messageFrame = new javax.swing.JTextArea();
         lpChatArea = new javax.swing.JLayeredPane();
         chatViewer = new javax.swing.JScrollPane();
         chatOutput = new javax.swing.JTextArea();
         chatInput = new javax.swing.JTextField();
         sendButton = new javax.swing.JButton();
+        tpOutputFrame = new javax.swing.JTabbedPane();
         spTreeAndEditor = new javax.swing.JSplitPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         sourceTree = new javax.swing.JTree();
@@ -115,6 +120,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         miExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        miFindReplace = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         miCompileProj = new javax.swing.JMenuItem();
 
@@ -146,16 +152,6 @@ public class ClientGUI extends javax.swing.JFrame {
                 spMsgAndChatPropertyChange(evt);
             }
         });
-
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(400, 113));
-
-        messageFrame.setColumns(20);
-        messageFrame.setEditable(false);
-        messageFrame.setRows(5);
-        messageFrame.setPreferredSize(new java.awt.Dimension(400, 94));
-        jScrollPane1.setViewportView(messageFrame);
-
-        spMsgAndChat.setLeftComponent(jScrollPane1);
 
         chatViewer.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         chatViewer.setHorizontalScrollBar(null);
@@ -192,6 +188,10 @@ public class ClientGUI extends javax.swing.JFrame {
         lpChatArea.add(sendButton, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         spMsgAndChat.setRightComponent(lpChatArea);
+
+        tpOutputFrame.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
+        tpOutputFrame.setPreferredSize(new java.awt.Dimension(400, 94));
+        spMsgAndChat.setLeftComponent(tpOutputFrame);
 
         spMiddle.setRightComponent(spMsgAndChat);
 
@@ -261,6 +261,15 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
+
+        miFindReplace.setText("Find/Replace...");
+        miFindReplace.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miFindReplaceActionPerformed(evt);
+            }
+        });
+        jMenu2.add(miFindReplace);
+
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("Run");
@@ -431,6 +440,10 @@ public class ClientGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_miCompileProjActionPerformed
 
+    private void miFindReplaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFindReplaceActionPerformed
+        new FindReplaceGUI(this).setVisible(true);
+    }//GEN-LAST:event_miFindReplaceActionPerformed
+
     public void readCurrProj()
     {
         spTreeAndEditor.setLeftComponent(jScrollPane2);
@@ -514,17 +527,16 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JLabel lbCaption;
     private javax.swing.JLayeredPane lpChatArea;
-    private javax.swing.JTextArea messageFrame;
     private javax.swing.JMenuItem miCloseProject;
     private javax.swing.JMenuItem miCompileProj;
     private javax.swing.JMenuItem miExit;
+    private javax.swing.JMenuItem miFindReplace;
     private javax.swing.JMenuItem miNewProj;
     private javax.swing.JMenuItem miOpenProject;
     private javax.swing.JMenuItem miSaveFile;
@@ -534,6 +546,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JSplitPane spMiddle;
     private javax.swing.JSplitPane spMsgAndChat;
     private javax.swing.JSplitPane spTreeAndEditor;
+    private javax.swing.JTabbedPane tpOutputFrame;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -71,6 +71,7 @@ public class ProjTreeMouse extends MouseAdapter
                 this.client.getFileIO().readSrcFile(srcNode);
                 srcNode.setLineNumbers();
                 pane.setSelectedIndex(pane.getTabCount()-1);
+                srcNode.getPane().requestFocusInWindow();
             }
         }
     }

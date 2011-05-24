@@ -8,6 +8,7 @@ package client;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.tree.*;
+import javax.swing.text.*;
 
 /**
  *

@@ -70,20 +70,7 @@ public class ProjFile
                 public void keyTyped(KeyEvent e)
                 {
                     if (!isStale)
-                    {
-                        int i;
-                        JTabbedPane tpane = client.getCodePane();
-                        for (i = 0; i < tpane.getTabCount(); i++)
-                            if (((ButtonTabComponent)
-                                tpane.getTabComponentAt(i)).getProjFileNode() ==
-                                ProjFile.this)
-                                break;
-
-                        tpane.setTitleAt(i, text+"*");
-                        ((ButtonTabComponent)
-                                tpane.getTabComponentAt(i)).fixBounds();
-                        isStale = true;
-                    }
+                        markStale();
 
                     setLineNumbers();
                 }
@@ -134,9 +121,30 @@ public class ProjFile
         return this.textPane;
     }
 
+    public JScrollPane getScrollPane()
+    {
+        return this.scrollPane;
+    }
+
     public void setIsStale(boolean stale)
     {
         this.isStale = stale;
+    }
+
+    public void markStale()
+    {
+        int i;
+        JTabbedPane tpane = this.client.getCodePane();
+        for (i = 0; i < tpane.getTabCount(); i++)
+            if (((ButtonTabComponent)
+                tpane.getTabComponentAt(i)).getProjFileNode() ==
+                ProjFile.this)
+                break;
+
+        tpane.setTitleAt(i, this.text+"*");
+        ((ButtonTabComponent)
+                tpane.getTabComponentAt(i)).fixBounds();
+        this.isStale = true;
     }
 
     public void setLineNumbers()
