@@ -25,7 +25,9 @@ public class ClientGUI extends javax.swing.JFrame {
     private JPanel panNoProj = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JScrollPane spNoProj = new javax.swing.JScrollPane();
     private JScrollPane spOutput;
+    private JScrollPane spBuddyList;
     private JTextArea taOutput = new javax.swing.JTextArea("Output");
+    private JList buddyList = new JList();
     private FileIO fileIO;
     
     /** Creates new form ClientsGUI */
@@ -50,6 +52,9 @@ public class ClientGUI extends javax.swing.JFrame {
         this.taOutput.setEditable(false);
         this.spOutput = new JScrollPane(this.taOutput);
         this.tpOutputFrame.addTab("Output", this.spOutput);
+
+        this.spBuddyList = new JScrollPane(this.buddyList);
+        this.tpOutputFrame.addTab("Buddy List", this.spBuddyList);
 
         ChatUpdateThread cut = new ChatUpdateThread();
         cut.start();
@@ -508,6 +513,10 @@ public class ClientGUI extends javax.swing.JFrame {
     					}
     					chatOutput.setCaretPosition(chatOutput.getDocument().getLength());
     				}
+
+                                String[] buddies = ConnectionManager.getBuddyList();
+                                buddyList.setListData(buddies);
+
     				sleep(100);
     			} catch (InterruptedException e) {
     				

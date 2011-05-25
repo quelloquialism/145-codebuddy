@@ -162,6 +162,28 @@ public class DBManager {
 			return null;
 		}
 	}
+
+        static String[] getUserList()
+        {
+            try
+            {
+                ResultSet allUsers =
+                        s.executeQuery("SELECT USERNAME FROM USERS");
+                String userStr = "";
+
+                while (allUsers.next())
+                {
+                    userStr += allUsers.getString(1) + ":";
+                }
+
+                return userStr.split(":");
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
+        }
 	
 	static void printChat() throws SQLException {
 		ResultSet userlist =

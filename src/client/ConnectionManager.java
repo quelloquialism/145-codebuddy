@@ -68,6 +68,15 @@ public class ConnectionManager {
 		if (active)
 			srvrOut.println("MSG" + user + ":" + msg);
 	}
+
+        static synchronized String[] getBuddyList() throws IOException
+        {
+            if (active)
+                srvrOut.println("BUD");
+
+            String response = srvrIn.readLine();
+            return response.split(":");
+        }
 	
 	static synchronized String[] updateChat() throws IOException {
 		if (active) {
