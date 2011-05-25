@@ -12,6 +12,7 @@ import javax.swing.tree.*;
 import java.awt.*;
 
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
 
 /**
  *
@@ -27,7 +28,8 @@ public class ClientGUI extends javax.swing.JFrame {
     private JScrollPane spOutput;
     private JScrollPane spBuddyList;
     private JTextArea taOutput = new javax.swing.JTextArea("Output");
-    private JList buddyList = new JList();
+    private JList buddyList;
+    private DefaultListModel buddyListModel = new DefaultListModel();
     private FileIO fileIO;
     
     /** Creates new form ClientsGUI */
@@ -53,6 +55,9 @@ public class ClientGUI extends javax.swing.JFrame {
         this.spOutput = new JScrollPane(this.taOutput);
         this.tpOutputFrame.addTab("Output", this.spOutput);
 
+        this.buddyList = new JList(this.buddyListModel);
+        this.buddyList.setSelectionMode(
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.spBuddyList = new JScrollPane(this.buddyList);
         this.tpOutputFrame.addTab("Buddy List", this.spBuddyList);
 
@@ -131,6 +136,11 @@ public class ClientGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
         addWindowStateListener(new java.awt.event.WindowStateListener() {
             public void windowStateChanged(java.awt.event.WindowEvent evt) {
                 formWindowStateChanged(evt);
@@ -449,6 +459,17 @@ public class ClientGUI extends javax.swing.JFrame {
         new FindReplaceGUI(this).setVisible(true);
     }//GEN-LAST:event_miFindReplaceActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try
+        {
+            ConnectionManager.logout(this.user);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_formWindowClosing
+
     public void readCurrProj()
     {
         spTreeAndEditor.setLeftComponent(jScrollPane2);
@@ -514,8 +535,30 @@ public class ClientGUI extends javax.swing.JFrame {
     					chatOutput.setCaretPosition(chatOutput.getDocument().getLength());
     				}
 
-                                String[] buddies = ConnectionManager.getBuddyList();
-                                buddyList.setListData(buddies);
+                                String[] buddies =
+                                        ConnectionManager.getBuddyList();
+
+                                boolean listChanged = false;
+
+                                if (buddies.length != buddyListModel.getSize())
+                                    listChanged = true;
+                                else
+                                    for (int i = 0; i < buddies.length; i++)
+                                    {
+                                        if (!buddies[i].equals(buddyListModel.get(i)))
+                                        {
+                                            listChanged = true;
+                                            break;
+                                        }
+                                    }
+
+                                if (listChanged)
+                                {
+                                    buddyListModel = new DefaultListModel();
+                                    for (int i = 0; i < buddies.length; i++)
+                                        buddyListModel.addElement(buddies[i]);
+                                    buddyList.setModel(buddyListModel);
+                                }
 
     				sleep(100);
     			} catch (InterruptedException e) {

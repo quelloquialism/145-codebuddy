@@ -77,6 +77,12 @@ public class ConnectionManager {
             String response = srvrIn.readLine();
             return response.split(":");
         }
+
+        static synchronized void logout(String user) throws IOException
+        {
+            if (active)
+                srvrOut.println("LOG"+user);
+        }
 	
 	static synchronized String[] updateChat() throws IOException {
 		if (active) {

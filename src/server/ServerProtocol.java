@@ -4,7 +4,6 @@ import java.util.*;
 
 public class ServerProtocol {
 	private ServerState ss = ServerState.PRELOGIN;
-        private List<String> onlineUsers = new ArrayList<String>();
 		
 	public String processInput(String inText) {
 		String type = inText.substring(0, 3);
@@ -19,7 +18,7 @@ public class ServerProtocol {
 			boolean valid = DBManager.isValidLogin(user, pass);
 			if (valid) {
 				ss = ServerState.POSTLOGIN;
-                                onlineUsers.add(user);
+                                DBManager.writeOnline(user);
 				return "accept";
 			} else {
 				return "reject";
@@ -43,20 +42,21 @@ public class ServerProtocol {
 			return System.currentTimeMillis() + "\n" + messages;
                 } else if (type.equals("BUD") && ss == ServerState.POSTLOGIN) {
                         // Process buddy list (list of online users)
-                        String [] allUsers = DBManager.getUserList();
-			
+                        String [] onlineUsers = DBManager.getOnlineList();
+			String [] offlineUsers = DBManager.getOfflineList();
+
                         String userStr = "";
+                        
+                        for (int i = 0; i < onlineUsers.length; i++)
+                            userStr += onlineUsers[i] + ":";
 
-                        for (int i = 0; i < allUsers.length; i++)
-                        {
-                            userStr += allUsers[i];
-
-                            if (!onlineUsers.contains(allUsers[i]))
-                                allUsers[i] += " (offline)";
-                            userStr += ":";
-                        }
+                        for (int i = 0; i < offlineUsers.length; i++)
+                            userStr += offlineUsers[i] + " (Offline):";
 
 			return userStr;
+		} else if (type.equals("LOG") && ss == ServerState.POSTLOGIN) {
+                        // Process logout
+                        DBManager.logoutUser(inText);
 		}
 		return null;
 	}

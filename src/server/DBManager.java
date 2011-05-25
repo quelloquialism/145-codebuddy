@@ -19,10 +19,14 @@ public class DBManager {
 			"MESSAGE VARCHAR(255) NOT NULL, " +
 			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 
+        private static final String createONLINE = "CREATE TABLE ONLINE (" +
+			"USERNAME VARCHAR(20) NOT NULL)";
+
 	private static Connection conn = null;
 	private static Statement s = null;
 	private static PreparedStatement psChat = null;
 	private static PreparedStatement psHist = null;
+        private static PreparedStatement psOnline = null;
 
 	static void init() {
 		// Load the JDBC JavaDB/Derby driver
@@ -58,9 +62,20 @@ public class DBManager {
 				createChatTable();
 				System.err.println("CHAT table created.");
 			}
+
+                        // Create online table, if it does not exist.
+                        s.execute("DROP TABLE ONLINE");
+			rs = dbmd.getTables(null, null, "ONLINE", null);
+			if (!rs.next()) {
+				System.err.println("ONLINE table not found. Creating...");
+				createOnlineTable();
+				System.err.println("ONLINE table created.");
+			}
 			
 			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
 			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");
+                        psOnline = conn.prepareStatement("INSERT INTO ONLINE(USERNAME) VALUES (?)");
+                        
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -92,6 +107,10 @@ public class DBManager {
 			System.exit(1);
 		}
 	}
+
+        private static void createOnlineTable() throws SQLException {
+            s.execute(createONLINE);
+        }
 	
 	private static void createUsersTable() throws SQLException {
 		s.execute(createUSERS);
@@ -135,6 +154,25 @@ public class DBManager {
 			return false;
 		}
 	}
+
+        static void writeOnline(String user)
+        {
+            try {
+                    psOnline.setString(1, user);
+                    psOnline.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        static void logoutUser(String user)
+        {
+            try {
+                    s.execute("DELETE FROM ONLINE WHERE USERNAME='"+user+"'");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 	
 	static void writeChatMessage(String user, String msg) {
 		try {
@@ -163,17 +201,54 @@ public class DBManager {
 		}
 	}
 
-        static String[] getUserList()
+        static synchronized String[] getOnlineList()
         {
             try
             {
-                ResultSet allUsers =
-                        s.executeQuery("SELECT USERNAME FROM USERS");
+                ResultSet onlineUsers =
+                        s.executeQuery("SELECT USERNAME FROM ONLINE");
                 String userStr = "";
 
-                while (allUsers.next())
+                while (onlineUsers.next())
                 {
-                    userStr += allUsers.getString(1) + ":";
+                    userStr += onlineUsers.getString(1) + ":";
+                }
+
+                return userStr.split(":");
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        static synchronized String[] getOfflineList()
+        {
+            try
+            {
+                ResultSet onlineUsers =
+                        s.executeQuery("SELECT USERNAME FROM ONLINE");
+                
+                String query = "SELECT USERNAME FROM USERS";
+
+                if (onlineUsers.next())
+                {
+                    query = "SELECT USERNAME FROM USERS WHERE (USERNAME <> "+
+                        "'"+onlineUsers.getString(1)+"'";
+                    while (onlineUsers.next())
+                    {
+                        query += " AND USERNAME <> '"+onlineUsers.getString(1)+"'";
+                    }
+                    query += ")";
+                }
+
+                ResultSet offUsers = s.executeQuery(query);
+                String userStr = "";
+
+                while (offUsers.next())
+                {
+                    userStr += offUsers.getString(1) + ":";
                 }
 
                 return userStr.split(":");
