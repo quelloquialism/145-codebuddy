@@ -17,6 +17,7 @@ public class ProjTreePopup extends JPopupMenu
 {
     private JMenuItem miNewSrc;
     private JMenuItem miNewPkg;
+    private JMenuItem miSetRun;
     private DefaultMutableTreeNode node;
     private String path;
     private String name;
@@ -34,6 +35,11 @@ public class ProjTreePopup extends JPopupMenu
 
             miNewPkg = new JMenuItem("New Package");
             add(miNewPkg);
+        }
+        else if (srcNode.isFile())
+        {
+            miSetRun = new JMenuItem("Set As Runnable");
+            add(miSetRun);
         }
 
         this.node = node;
@@ -105,6 +111,28 @@ public class ProjTreePopup extends JPopupMenu
                                 insertNodeInto(child, node,
                                 node.getChildCount());
                     }
+                }
+            });
+        }
+        else if (srcNode.isFile())
+        {
+            miSetRun.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    DefaultMutableTreeNode parent =
+                            (DefaultMutableTreeNode)node.getParent();
+
+                    String dir = client.getCurrProjLoc().substring(0,
+                            client.getCurrProjLoc().lastIndexOf("\\"));
+
+                    ProjFile pkgNode = (ProjFile)parent.getUserObject();
+                    ProjFile srcNode = (ProjFile)node.getUserObject();
+                    client.getCompiler().SetRunnable("-classpath " +
+                            dir + " " +
+                            pkgNode.getText() + "." +
+                            srcNode.getText().substring(0,
+                            srcNode.getText().lastIndexOf(".")));
                 }
             });
         }

@@ -17,7 +17,6 @@ public class StreamThread extends Thread
 {
     private InputStream is;
     private String output = "";
-    private boolean isDone = false;
 
     public StreamThread(InputStream is)
     {
@@ -42,13 +41,6 @@ public class StreamThread extends Thread
         {
             System.err.println("Error: " + e.getMessage());
         }
-
-        this.isDone = true;
-    }
-
-    public boolean isDone()
-    {
-        return this.isDone;
     }
 
     public String getOutput()

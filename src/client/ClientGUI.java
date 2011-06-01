@@ -31,6 +31,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private JList buddyList;
     private DefaultListModel buddyListModel = new DefaultListModel();
     private FileIO fileIO;
+    private Compiler compiler;
     
     /** Creates new form ClientsGUI */
     public ClientGUI(String user) {
@@ -69,11 +70,17 @@ public class ClientGUI extends javax.swing.JFrame {
     {
         this.sourceTree.addMouseListener(new ProjTreeMouse(this));
         this.fileIO = new FileIO(this);
+        this.compiler = new Compiler(this);
     }
 
     public FileIO getFileIO()
     {
         return this.fileIO;
+    }
+
+    public JTextArea getOutputPane()
+    {
+        return this.taOutput;
     }
 
     public JTabbedPane getCodePane()
@@ -94,6 +101,11 @@ public class ClientGUI extends javax.swing.JFrame {
     public void setCurrProjLoc(String cpl)
     {
         this.currProjLoc = cpl;
+    }
+
+    public Compiler getCompiler()
+    {
+        return this.compiler;
     }
 
     /** This method is called from within the constructor to
@@ -133,6 +145,7 @@ public class ClientGUI extends javax.swing.JFrame {
         miFindReplace = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         miCompileProj = new javax.swing.JMenuItem();
+        miRun = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("CodeBuddy Alpha");
@@ -297,6 +310,14 @@ public class ClientGUI extends javax.swing.JFrame {
         });
         jMenu3.add(miCompileProj);
 
+        miRun.setText("Run Project");
+        miRun.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miRunActionPerformed(evt);
+            }
+        });
+        jMenu3.add(miRun);
+
         jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
@@ -452,7 +473,14 @@ public class ClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_miExitActionPerformed
 
     private void miCompileProjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miCompileProjActionPerformed
-
+        try
+        {
+            this.compiler.compileAll();
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error: " + e.getMessage());
+        }
     }//GEN-LAST:event_miCompileProjActionPerformed
 
     private void miFindReplaceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miFindReplaceActionPerformed
@@ -469,6 +497,10 @@ public class ClientGUI extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void miRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miRunActionPerformed
+        this.compiler.runRunnable();
+    }//GEN-LAST:event_miRunActionPerformed
 
     public void readCurrProj()
     {
@@ -591,6 +623,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem miFindReplace;
     private javax.swing.JMenuItem miNewProj;
     private javax.swing.JMenuItem miOpenProject;
+    private javax.swing.JMenuItem miRun;
     private javax.swing.JMenuItem miSaveFile;
     private javax.swing.JMenuItem miSaveProj;
     private javax.swing.JButton sendButton;
