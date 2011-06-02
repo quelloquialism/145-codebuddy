@@ -11,10 +11,10 @@ public class ClientMain {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LoginGUI().setVisible(true);
-                //ClientGUI client = new ClientGUI("test");
-                //client.init();
-                //client.setVisible(true);
+                //new LoginGUI().setVisible(true);
+                ClientGUI client = new ClientGUI("test");
+                client.init();
+                client.setVisible(true);
             }
         });
     }

@@ -120,17 +120,18 @@ public class ProjTreePopup extends JPopupMenu
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    DefaultMutableTreeNode parent =
-                            (DefaultMutableTreeNode)node.getParent();
-
                     String dir = client.getCurrProjLoc().substring(0,
                             client.getCurrProjLoc().lastIndexOf("\\"));
+                    String pkgs = 
+                            client.getCompiler().BuildPackageString(node, "");
 
-                    ProjFile pkgNode = (ProjFile)parent.getUserObject();
+                    if (!pkgs.equals(""))
+                        pkgs += ".";
+
                     ProjFile srcNode = (ProjFile)node.getUserObject();
+
                     client.getCompiler().SetRunnable("-classpath " +
-                            dir + " " +
-                            pkgNode.getText() + "." +
+                            dir + " " +  pkgs +
                             srcNode.getText().substring(0,
                             srcNode.getText().lastIndexOf(".")));
                 }

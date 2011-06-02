@@ -98,10 +98,34 @@ public class Compiler
                     outThread.getOutput() + "\n");
             this.client.getOutputPane().append("STDERR: " +
                     errThread.getOutput() + "\n");
+
+            outThread.interrupt();
+            errThread.interrupt();
         }
         catch (Exception e)
         {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    public String BuildPackageString(DefaultMutableTreeNode node, String build)
+    {
+        DefaultMutableTreeNode parent =
+                (DefaultMutableTreeNode)node.getParent();
+
+        if (parent == null)
+            return build;
+
+        ProjFile srcNode = (ProjFile)node.getUserObject();
+
+        if (srcNode.isPackage() && !srcNode.getText().equals("src"))
+        {
+            if (build.equals(""))
+                build += srcNode.getText();
+            else
+                build = srcNode.getText() + "." + build;
+        }
+
+        return BuildPackageString(parent, build);
     }
 }
