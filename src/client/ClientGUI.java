@@ -62,8 +62,8 @@ public class ClientGUI extends javax.swing.JFrame {
         this.spBuddyList = new JScrollPane(this.buddyList);
         this.tpOutputFrame.addTab("Buddy List", this.spBuddyList);
 
-        //ChatUpdateThread cut = new ChatUpdateThread();
-        //cut.start();
+        ChatUpdateThread cut = new ChatUpdateThread();
+        cut.start();
     }
 
     public void init()
