@@ -38,6 +38,13 @@ public class TransferThread extends Thread {
                 out.println(fileStr);
                 out.flush();
                 out.close();
+            } else if (type.equals("LIST")) {
+                String[] listing = DBManager.getFileList();
+                PrintWriter out = new PrintWriter(socket.getOutputStream());
+                for (String s : listing)
+                    out.println(s);
+                out.flush();
+                out.close();
             }
 
             in.close();

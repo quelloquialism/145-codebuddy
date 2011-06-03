@@ -3,6 +3,7 @@ package client;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.LinkedList;
 
 public class ConnectionManager {
 	private static final String SERVER = "minthe.ugcs.caltech.edu";
@@ -66,6 +67,33 @@ public class ConnectionManager {
 		if (active)
 			srvrOut.println("MSG" + user + ":" + msg);
 	}
+
+    static String[] getFileList() {
+        try {
+            InetAddress srvr = InetAddress.getByName(SERVER);
+            Socket dataSock = new Socket(srvr, DATA_PORT);
+            PrintWriter op = new PrintWriter(dataSock.getOutputStream(), true);
+
+            op.println("LIST");
+            op.flush();
+
+            BufferedReader ip = new BufferedReader(new InputStreamReader(
+                        dataSock.getInputStream()));
+
+            LinkedList<String> ls = new LinkedList<String>();
+            String tmp = "";
+            while ((tmp = ip.readLine()) != null)
+                ls.add(tmp);
+
+            op.close();
+            ip.close();
+            dataSock.close();
+            String[] listing = ls.toArray(new String[0]);
+            return listing;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     static boolean storeFile(String path, String f) {
         try {

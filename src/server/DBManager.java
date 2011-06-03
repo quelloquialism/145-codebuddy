@@ -3,6 +3,7 @@ package server;
 import java.sql.*;
 import bcrypt.BCrypt;
 import javax.sql.rowset.serial.SerialClob;
+import java.util.LinkedList;
 
 public class DBManager {
 
@@ -320,5 +321,13 @@ public class DBManager {
         psPutf.setClob(2, cl);
         psPutf.executeUpdate();
         System.err.println("Storing file...");
+    }
+
+    static String[] getFileList() throws SQLException {
+        ResultSet filelist = s.executeQuery("SELECT PATH FROM DATA");
+        LinkedList<String> ls = new LinkedList<String>();
+        while (filelist.next())
+            ls.add(filelist.getString(1));
+        return ls.toArray(new String[0]);
     }
 }
