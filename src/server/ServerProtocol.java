@@ -18,7 +18,7 @@ public class ServerProtocol {
 			boolean valid = DBManager.isValidLogin(user, pass);
 			if (valid) {
 				ss = ServerState.POSTLOGIN;
-                                DBManager.writeOnline(user);
+                DBManager.writeOnline(user);
 				return "accept";
 			} else {
 				return "reject";
@@ -40,23 +40,23 @@ public class ServerProtocol {
 			
 			String messages = DBManager.getChatSince(lastUpdate);
 			return System.currentTimeMillis() + "\n" + messages;
-                } else if (type.equals("BUD") && ss == ServerState.POSTLOGIN) {
-                        // Process buddy list (list of online users)
-                        String [] onlineUsers = DBManager.getOnlineList();
-			String [] offlineUsers = DBManager.getOfflineList();
+        } else if (type.equals("BUD") && ss == ServerState.POSTLOGIN) {
+            // Process buddy list (list of online users)
+            String[] onlineUsers = DBManager.getOnlineList();
+            String[] offlineUsers = DBManager.getOfflineList();
 
-                        String userStr = "";
+            String userStr = "";
                         
-                        for (int i = 0; i < onlineUsers.length; i++)
-                            userStr += onlineUsers[i] + ":";
+            for (String u : onlineUsers)
+                userStr += u + ":";
 
-                        for (int i = 0; i < offlineUsers.length; i++)
-                            userStr += offlineUsers[i] + " (Offline):";
+            for (String u : offlineUsers)
+                userStr += u + " (Offline):";
 
 			return userStr;
 		} else if (type.equals("LOG") && ss == ServerState.POSTLOGIN) {
-                        // Process logout
-                        DBManager.logoutUser(inText);
+            // Process logout
+            DBManager.logoutUser(inText);
 		}
 		return null;
 	}

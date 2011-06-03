@@ -1,15 +1,13 @@
 package client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class ConnectionManager {
 	private static final String SERVER = "minthe.ugcs.caltech.edu";
-	private static final int PORT_NUMBER = 4444;
+	private static final int USER_PORT = 4444;
+    private static final int DATA_PORT = 4445;
     private static Socket srvrSoc = null;
 	private static PrintWriter srvrOut = null;
 	private static BufferedReader srvrIn = null;
@@ -22,7 +20,7 @@ public class ConnectionManager {
 		if (!active) {
 			// Acquire a read/write socket connection to the server
 			InetAddress srvr = InetAddress.getByName(SERVER);
-			srvrSoc = new Socket(srvr, PORT_NUMBER);
+			srvrSoc = new Socket(srvr, USER_PORT);
 			srvrOut = new PrintWriter(srvrSoc.getOutputStream(), true);
 			srvrIn = new BufferedReader(new InputStreamReader(
 					srvrSoc.getInputStream()));
@@ -69,20 +67,65 @@ public class ConnectionManager {
 			srvrOut.println("MSG" + user + ":" + msg);
 	}
 
-        static synchronized String[] getBuddyList() throws IOException
-        {
-            if (active)
-                srvrOut.println("BUD");
+    static boolean storeFile(String path, String f) {
+        try {
+			InetAddress srvr = InetAddress.getByName(SERVER);
+            Socket dataSock = new Socket(srvr, DATA_PORT);
+            PrintWriter op = new PrintWriter(dataSock.getOutputStream(), true);
+
+            op.println("STOR");
+            op.println(path);
+            op.println(f);
+            op.flush();
+            op.close();
+            dataSock.close();
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    static String retrieveFile(String path) {
+        try {
+			InetAddress srvr = InetAddress.getByName(SERVER);
+            Socket dataSock = new Socket(srvr, DATA_PORT);
+            PrintWriter op = new PrintWriter(dataSock.getOutputStream(), true);
+            BufferedReader ip = new BufferedReader(new InputStreamReader(
+                        dataSock.getInputStream()));
+
+            op.println("RETR");
+            op.println(path);
+            String fileStr = "";
+            String tmp = "";
+            while ((tmp = ip.readLine()) != null)
+                fileStr += tmp + "\n";
+            ip.close();
+            op.close();
+            dataSock.close();
+            // last char is a spare newline
+            if (fileStr.length() > 0)
+                fileStr = fileStr.substring(0, fileStr.length() - 1);
+            return fileStr;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    static synchronized String[] getBuddyList() throws IOException {
+        if (active) {
+            srvrOut.println("BUD");
 
             String response = srvrIn.readLine();
             return response.split(":");
-        }
+        } else
+            return new String[0];
+    }
 
-        static synchronized void logout(String user) throws IOException
-        {
-            if (active)
-                srvrOut.println("LOG"+user);
-        }
+    static synchronized void logout(String user) throws IOException {
+        if (active)
+            srvrOut.println("LOG"+user);
+    }
 	
 	static synchronized String[] updateChat() throws IOException {
 		if (active) {

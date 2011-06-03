@@ -2,6 +2,7 @@ package server;
 
 import java.sql.*;
 import bcrypt.BCrypt;
+import javax.sql.rowset.serial.SerialClob;
 
 public class DBManager {
 
@@ -19,14 +20,21 @@ public class DBManager {
 			"MESSAGE VARCHAR(255) NOT NULL, " +
 			"ENTRY_TIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 
-        private static final String createONLINE = "CREATE TABLE ONLINE (" +
+	private static final String createONLINE = "CREATE TABLE ONLINE (" +
 			"USERNAME VARCHAR(20) NOT NULL)";
+
+    private static final String createDATA = "CREATE TABLE DATA (" +
+            "PATH VARCHAR(255) NOT NULL, " +
+            "FILE CLOB(256M))";
 
 	private static Connection conn = null;
 	private static Statement s = null;
 	private static PreparedStatement psChat = null;
 	private static PreparedStatement psHist = null;
-        private static PreparedStatement psOnline = null;
+    private static PreparedStatement psOnline = null;
+    private static PreparedStatement psGetf = null;
+    private static PreparedStatement psPutf = null;
+    private static PreparedStatement psKillf = null;
 
 	static void init() {
 		// Load the JDBC JavaDB/Derby driver
@@ -63,18 +71,30 @@ public class DBManager {
 				System.err.println("CHAT table created.");
 			}
 
-                        // Create online table, if it does not exist.
-                        s.execute("DROP TABLE ONLINE");
+			// Create chat table, if it does not exist.
+			rs = dbmd.getTables(null, null, "DATA", null);
+			if (!rs.next()) {
+				System.err.println("DATA table not found. Creating...");
+				createDataTable();
+				System.err.println("DATA table created.");
+			}
+
+			// Create online table
 			rs = dbmd.getTables(null, null, "ONLINE", null);
 			if (!rs.next()) {
 				System.err.println("ONLINE table not found. Creating...");
 				createOnlineTable();
 				System.err.println("ONLINE table created.");
 			}
+			// Since this is startup, there should be nobody online yet
+			s.execute("DELETE FROM ONLINE");
 			
 			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
 			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");
-                        psOnline = conn.prepareStatement("INSERT INTO ONLINE(USERNAME) VALUES (?)");
+			psOnline = conn.prepareStatement("INSERT INTO ONLINE(USERNAME) VALUES (?)");
+            psGetf = conn.prepareStatement("SELECT FILE FROM DATA WHERE PATH = ?");
+            psPutf = conn.prepareStatement("INSERT INTO DATA(PATH, FILE) VALUES(?, ?)");
+            psKillf = conn.prepareStatement("DELETE FROM DATA WHERE PATH = ?");
                         
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,10 +128,14 @@ public class DBManager {
 		}
 	}
 
-        private static void createOnlineTable() throws SQLException {
-            s.execute(createONLINE);
-        }
+	private static void createOnlineTable() throws SQLException {
+		s.execute(createONLINE);
+	}
 	
+    private static void createDataTable() throws SQLException {
+        s.execute(createDATA);
+    }
+
 	private static void createUsersTable() throws SQLException {
 		s.execute(createUSERS);
 				
@@ -155,24 +179,22 @@ public class DBManager {
 		}
 	}
 
-        static void writeOnline(String user)
-        {
-            try {
-                    psOnline.setString(1, user);
-                    psOnline.execute();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	static void writeOnline(String user) {
+		try {
+			psOnline.setString(1, user);
+			psOnline.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
-        static void logoutUser(String user)
-        {
-            try {
-                    s.execute("DELETE FROM ONLINE WHERE USERNAME='"+user+"'");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+	static void logoutUser(String user) {
+		try {
+			s.execute("DELETE FROM ONLINE WHERE USERNAME='"+user+"'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	static void writeChatMessage(String user, String msg) {
 		try {
@@ -272,4 +294,31 @@ public class DBManager {
 		}
 		userlist.close();
 	}
+
+    static String getFile(String path) throws SQLException {
+        psGetf.setString(1, path);
+        ResultSet fileRetrieve = psGetf.executeQuery();
+        if (fileRetrieve.next()) {
+            System.err.println("Retrieving file...");
+            Clob cl = fileRetrieve.getClob(1);
+            String fileStr = cl.getSubString(1, (int)cl.length());
+            return fileStr;
+        } else {
+            System.err.println("No file to retrieve.");
+            return null;
+        }
+    }
+
+    static void putFile(String path, String file) throws SQLException {
+        // delete old copy
+        psKillf.setString(1, path);
+        psKillf.executeUpdate();
+
+        // make new copy
+        psPutf.setString(1, path);
+        Clob cl = new SerialClob(file.toCharArray());
+        psPutf.setClob(2, cl);
+        psPutf.executeUpdate();
+        System.err.println("Storing file...");
+    }
 }
