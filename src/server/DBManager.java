@@ -89,6 +89,8 @@ public class DBManager {
 			}
 			// Since this is startup, there should be nobody online yet
 			s.execute("DELETE FROM ONLINE");
+                        // temp
+                        //s.execute("DELETE FROM DATA");
 			
 			psChat = conn.prepareStatement("INSERT INTO CHAT(USERNAME, MESSAGE) VALUES (?, ?)");
 			psHist = conn.prepareStatement("SELECT USERNAME, MESSAGE FROM CHAT WHERE ENTRY_TIME > ?  ORDER BY ENTRY_TIME");

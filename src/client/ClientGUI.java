@@ -10,6 +10,7 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
@@ -27,11 +28,19 @@ public class ClientGUI extends javax.swing.JFrame {
     private JScrollPane spNoProj = new javax.swing.JScrollPane();
     private JScrollPane spOutput;
     private JScrollPane spBuddyList;
+    private JScrollPane spSourceTree;
+    private JScrollPane spRemoteList;
     private JTextArea taOutput = new javax.swing.JTextArea("Output");
     private JList buddyList;
     private DefaultListModel buddyListModel = new DefaultListModel();
     private FileIO fileIO;
     private Compiler compiler;
+    private JTree sourceTree = new JTree();
+    private JList remoteFileList;
+    private JPanel pRemoteFiles;
+    private JButton btRefreshRemote = new JButton("Refresh");
+    private JButton btMapRemote = new JButton("Map");
+    private DefaultListModel remoteFileListModel = new DefaultListModel();
     
     /** Creates new form ClientsGUI */
     public ClientGUI(String user) {
@@ -62,6 +71,30 @@ public class ClientGUI extends javax.swing.JFrame {
         this.spBuddyList = new JScrollPane(this.buddyList);
         this.tpOutputFrame.addTab("Buddy List", this.spBuddyList);
 
+        this.spSourceTree = new JScrollPane(this.sourceTree);
+        this.tpSource.addTab("Local", this.spSourceTree);
+        
+        this.remoteFileList = new JList(this.remoteFileListModel);
+        this.remoteFileList.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
+        this.spRemoteList = new JScrollPane(this.remoteFileList);
+        this.pRemoteFiles = new JPanel();
+        this.pRemoteFiles.setLayout(new CustomGridLayout(3,1));
+        this.pRemoteFiles.add(this.spRemoteList);
+        this.pRemoteFiles.add(this.btRefreshRemote);
+        this.pRemoteFiles.add(this.btMapRemote);
+        this.tpSource.addTab("Remote", this.pRemoteFiles);
+
+        this.btRefreshRemote.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                populateRemoteList();
+            }
+        });
+
+        populateRemoteList();
+
         ChatUpdateThread cut = new ChatUpdateThread();
         cut.start();
     }
@@ -71,6 +104,33 @@ public class ClientGUI extends javax.swing.JFrame {
         this.sourceTree.addMouseListener(new ProjTreeMouse(this));
         this.fileIO = new FileIO(this);
         this.compiler = new Compiler(this);
+
+        this.btMapRemote.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                int select = remoteFileList.getSelectedIndex();
+
+                if (select < 0)
+                {
+                    JOptionPane.showMessageDialog(null,
+                        "Error: Nothing is selected for the map.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String map =
+                        (String)remoteFileList.getModel().getElementAt(select);
+
+                new MapFileGUI(map, ClientGUI.this, true).setVisible(true);
+            }
+        });
+    }
+
+    public JScrollPane getSrcScrollPane()
+    {
+        return this.spSourceTree;
     }
 
     public FileIO getFileIO()
@@ -108,6 +168,19 @@ public class ClientGUI extends javax.swing.JFrame {
         return this.compiler;
     }
 
+    private void populateRemoteList()
+    {
+        String [] fileStrs = ConnectionManager.getFileList();
+
+        if (fileStrs != null)
+        {
+            remoteFileListModel = new DefaultListModel();
+            for (int i = 0; i < fileStrs.length; i++)
+                remoteFileListModel.addElement(fileStrs[i]);
+            remoteFileList.setModel(remoteFileListModel);
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -127,9 +200,8 @@ public class ClientGUI extends javax.swing.JFrame {
         sendButton = new javax.swing.JButton();
         tpOutputFrame = new javax.swing.JTabbedPane();
         spTreeAndEditor = new javax.swing.JSplitPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        sourceTree = new javax.swing.JTree();
         codePane = new javax.swing.JTabbedPane();
+        tpSource = new javax.swing.JTabbedPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         miNewProj = new javax.swing.JMenuItem();
@@ -160,8 +232,8 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
 
-        lbCaption.setFont(new java.awt.Font("Tahoma", 0, 18));
-        lbCaption.setText("CoderBuddy");
+        lbCaption.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lbCaption.setText("CodeBuddy");
 
         spMiddle.setDividerLocation(200);
         spMiddle.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -224,12 +296,10 @@ public class ClientGUI extends javax.swing.JFrame {
         spMiddle.setRightComponent(spMsgAndChat);
 
         spTreeAndEditor.setDividerLocation(200);
-
-        sourceTree.setPreferredSize(new java.awt.Dimension(200, 200));
-        jScrollPane2.setViewportView(sourceTree);
-
-        spTreeAndEditor.setLeftComponent(jScrollPane2);
         spTreeAndEditor.setRightComponent(codePane);
+
+        tpSource.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
+        spTreeAndEditor.setLeftComponent(tpSource);
 
         spMiddle.setLeftComponent(spTreeAndEditor);
 
@@ -504,7 +574,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     public void readCurrProj()
     {
-        spTreeAndEditor.setLeftComponent(jScrollPane2);
+        spTreeAndEditor.setLeftComponent(this.tpSource);
         fileIO.readProj(this.currProjLoc);
     }
 
@@ -611,7 +681,6 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
@@ -627,11 +696,11 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem miSaveFile;
     private javax.swing.JMenuItem miSaveProj;
     private javax.swing.JButton sendButton;
-    private javax.swing.JTree sourceTree;
     private javax.swing.JSplitPane spMiddle;
     private javax.swing.JSplitPane spMsgAndChat;
     private javax.swing.JSplitPane spTreeAndEditor;
     private javax.swing.JTabbedPane tpOutputFrame;
+    private javax.swing.JTabbedPane tpSource;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -30,6 +30,7 @@ public class ProjFile
     private int type;
     private ClientGUI client;
     private boolean isStale;
+    private String remoteFileMap = null;
 
     public ProjFile(String txt, String path, int type, ClientGUI c)
     {
@@ -126,13 +127,57 @@ public class ProjFile
         return this.scrollPane;
     }
 
+    public String getRemoteFileMap()
+    {
+        return this.remoteFileMap;
+    }
+
+    public void setRemoteFileMap(String map)
+    {
+        this.remoteFileMap = map;
+    }
+
     public void setIsStale(boolean stale)
     {
         this.isStale = stale;
     }
 
+    public void openTabForFile()
+    {
+        JTabbedPane pane = this.client.getCodePane();
+
+        int i;
+        for (i = 0; i < pane.getTabCount(); i++)
+        {
+            ProjFile pfnode = ((ButtonTabComponent)
+                    pane.getTabComponentAt(i)).getProjFileNode();
+            if (pfnode == this)
+            {
+                pane.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        // it's not open, load from file
+        if (i == pane.getTabCount())
+        {
+            pane.add(this.getText(), this.panel);
+            pane.setTabComponentAt(pane.getTabCount()-1,
+                    new ButtonTabComponent(pane, this, this.client));
+            String txt = this.client.getFileIO().readSrcFile(this);
+            // load the text
+            this.textPane.setText(txt);
+            this.setLineNumbers();
+            pane.setSelectedIndex(pane.getTabCount()-1);
+            this.textPane.requestFocusInWindow();
+        }
+    }
+
     public void markStale()
     {
+        if (this.isStale)
+            return;
+        
         int i;
         JTabbedPane tpane = this.client.getCodePane();
         for (i = 0; i < tpane.getTabCount(); i++)

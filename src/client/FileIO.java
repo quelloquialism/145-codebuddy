@@ -24,7 +24,7 @@ public class FileIO
         this.sourceTree = client.getSrcTree();
     }
 
-    public void readSrcFile(ProjFile srcNode)
+    public String readSrcFile(ProjFile srcNode)
     {
         String fileStr = srcNode.getPath() + "\\" + srcNode.getText();
 
@@ -43,13 +43,14 @@ public class FileIO
 
             in.close();
 
-            // load the text
-            srcNode.getPane().setText(text);
+            return text;
         }
         catch (Exception e)
         {
             System.err.println("Error: " + e.getMessage());
         }
+
+        return null;
     }
 
     public void saveSrcFile(ProjFile srcNode)
